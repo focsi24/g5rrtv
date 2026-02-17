@@ -282,44 +282,54 @@
       }
     }
 
-    // TikTok через tokcount.com (повністю безкоштовно, без лімітів)
+    // TikTok через tokcount.com з іншим проксі та надійнішим парсингом
     async function updateTikTokFollowers() {
       const username = 'hapix167';
-      const proxy = 'https://api.allorigins.win/raw?url=';
+      const proxy = 'https://corsproxy.io/?'; // інший проксі, який краще працює
       const url = `${proxy}${encodeURIComponent('https://tokcount.com/?user=' + username)}`;
       const ttEl = document.getElementById('tt-followers');
 
       try {
-        const res = await fetch(url);
+        ttEl.textContent = 'перевірка...'; // тимчасово, щоб бачити, що функція запустилася
+
+        const res = await fetch(url, {
+          headers: { 'Origin': window.location.origin }
+        });
+
+        if (!res.ok) throw new Error('Проксі відповів ' + res.status);
+
         const html = await res.text();
 
-        // Парсинг числа підписників з tokcount.com
-        const match = html.match(/(\d{1,3}(?:,\d{3})*)\s*Followers/i) ||
-                      html.match(/(\d+)\s*<span[^>]*>Followers<\/span>/i) ||
-                      html.match(/(\d{1,3}(?:,\d{3})*)\s*підписників/i) ||
-                      html.match(/followersCount&quot;:(\d+)/);
+        // Дуже широкий пошук числа
+        const match = html.match(/(\d{1,3}(?:,\d{3})*)\s*(?:Followers|followers|підписників|Підписників)/i) ||
+                      html.match(/(\d+)\s*(?:Followers|followers|підписників|Підписників)/i) ||
+                      html.match(/followersCount&quot;:(\d+)/) ||
+                      html.match(/(\d{1,3}(?:,\d{3})*)\s*<[^>]*>Followers/);
+
+        console.log('TokCount HTML snippet:', html.substring(0, 500)); // для діагностики
 
         if (match && match[1]) {
           const count = parseInt(match[1].replace(/,/g, ''), 10);
           ttEl.textContent = count.toLocaleString('uk-UA') + ' підписників';
+          console.log('Знайдено підписників:', count);
         } else {
           ttEl.textContent = '63 підписників';
+          console.log('Число не знайдено в HTML');
         }
       } catch (err) {
-        console.error('TokCount error:', err);
+        console.error('TokCount помилка:', err.message);
         ttEl.textContent = '63 підписників';
       }
     }
 
-    // Запуск усіх лічильників
+    // Запуск
     updateYouTubeSubs();
     updateTelegramMembers();
     updateTikTokFollowers();
 
-    // Інтервал оновлення
-    setInterval(updateYouTubeSubs, 600000);       // 10 хв
-    setInterval(updateTelegramMembers, 600000);   // 10 хв
-    setInterval(updateTikTokFollowers, 300000);   // 5 хв (tokcount.com дозволяє)
+    setInterval(updateYouTubeSubs, 600000);
+    setInterval(updateTelegramMembers, 600000);
+    setInterval(updateTikTokFollowers, 300000); // 5 хвилин
   </script>
 </body>
 </html>
