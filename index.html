@@ -224,7 +224,7 @@
 
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // YouTube динаміка
+    // YouTube
     async function updateYouTubeSubs() {
       const apiKey = 'AIzaSyCyis7v-XO1WehfDCWsf6IrkrdWtRqJhbg';
       const channelHandle = 'ostocer';
@@ -259,7 +259,7 @@
       }
     }
 
-    // Telegram динаміка
+    // Telegram
     async function updateTelegramMembers() {
       const botToken = '8572184995:AAEgEWih_pq28d-mIBonsOQPr7r9kUSMCGk';
       const chatId = '-1002943143303';
@@ -282,7 +282,7 @@
       }
     }
 
-    // TikTok через ScraperAPI (виправлено на HTTPS + render=true)
+    // TikTok через ScraperAPI (HTTPS + render=true)
     async function updateTikTokFollowers() {
       const username = 'hapix167';
       const scraperApiKey = 'b6064304bde8cbb06a5f626d950c2884';
@@ -311,15 +311,14 @@
       }
     }
 
-    // Запуск усіх функцій при завантаженні
+    // Запуск усіх функцій
     updateYouTubeSubs();
     updateTelegramMembers();
     updateTikTokFollowers();
 
-    // Автоматичне оновлення
-    setInterval(updateYouTubeSubs, 600000);      // кожні 10 хв
-    setInterval(updateTelegramMembers, 600000);  // кожні 10 хв
-    setInterval(updateTikTokFollowers, 3600000); // раз на годину для TikTok (економія кредитів)
+    setInterval(updateYouTubeSubs, 600000);
+    setInterval(updateTelegramMembers, 600000);
+    setInterval(updateTikTokFollowers, 3600000); // раз на годину для економії кредитів
   </script>
 </body>
 </html>
