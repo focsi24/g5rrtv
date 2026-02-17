@@ -141,6 +141,9 @@
     @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
     .sparkle { position: absolute; width: 5px; height: 5px; background: white; border-radius: 50%; animation: sparkleFloat 4s ease-in-out infinite; pointer-events: none; }
     @keyframes sparkleFloat { 0%, 100% { opacity: 0; transform: translateY(0) scale(0); } 50% { opacity: 0.9; transform: translateY(-60px) scale(1.2); } }
+    .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,215,0,0.3); border-radius: 50%; border-top-color: #FFD700; animation: spin 1s ease-in-out infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error { color: #ff6b6b; font-size: 14px; }
     @media (max-width: 480px) {
       .container { padding: 45px 30px; border-radius: 32px; }
       h1 { font-size: 36px; }
@@ -174,7 +177,7 @@
       </a>
       <a href="https://www.tiktok.com/@hapix167" target="_blank" rel="noopener noreferrer" class="link-button tiktok">
         <svg class="icon" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.23 4.83 4.83 0 0 0-7.62 1.42 4.83 4.83 0 0 0-.13 4.53 4.83 4.83 0 0 1-2.44 3.42 4.83 4.83 0 0 0 3.77 4.23 4.83 4.83 0 0 1-2.44 3.42 4.83 4.83 0 0 0 7.62-1.42 4.83 4.83 0 0 0 .13-4.53 4.83 4.83 0 0 1 2.44-3.42zM15.5 15.5l-3.5 3.5-3.5-3.5 3.5-3.5 3.5 3.5z"/>
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.23V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
         </svg>
         <span>TikTok</span>
       </a>
@@ -184,20 +187,20 @@
       </a>
     </div>
     <div class="live-stats">
-      <p style="font-size: 19px; margin-bottom: 20px; font-weight: 700;">Підписалися на мене:</p>
+      <p style="font-size: 19px; margin-bottom: 20px; font-weight: 700;">📊 Моя аудиторія:</p>
       <div class="stat-line">
         <svg class="stat-icon" viewBox="0 0 24 24" fill="#FF0000" xmlns="http://www.w3.org/2000/svg"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 0.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-        <span>YouTube: <strong id="youtube-subs">завантаження...</strong></span>
+        <span>YouTube: <strong id="youtube-subs"><span class="loading"></span></strong></span>
       </div>
       <div class="stat-line">
         <svg class="stat-icon" viewBox="0 0 24 24" fill="#000" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12.53.02C13.84.02 15.14.02 16.44.02 17.74.02 19.04.02 20.34.02 21.64.02 22.94.02 24.24.02 25.54.02 26.84.02 28.14.02 29.44.02 30.74.02 32.04.02 33.34.02 34.64.02 35.94.02 37.24.02 38.54.02 39.84.02 41.14.02 42.44.02 43.74.02 45.04.02 46.34.02 47.64.02 48.94.02 50.24.02 51.54.02 52.84.02 54.14.02 55.44.02 56.74.02 58.04.02 59.34.02 60.64.02 61.94.02 63.24.02 64.54.02 65.84.02 67.14.02 68.44.02 69.74.02 71.04.02 72.34.02 73.64.02 74.94.02 76.24.02 77.54.02 78.84.02 80.14.02 81.44.02 82.74.02 84.04.02 85.34.02 86.64.02 87.94.02 89.24.02 90.54.02 91.84.02 93.14.02 94.44.02 95.74.02 97.04.02 98.34.02 99.64.02 100.94.02 102.24.02 103.54.02 104.84.02 106.14.02 107.44.02 108.74.02 110.04.02 111.34.02 112.64.02 113.94.02 115.24.02 116.54.02 117.84.02 119.14.02 120.44.02 121.74.02 123.04.02 124.34.02 125.64.02 126.94.02 128.24.02 129.54.02 130.84.02 132.14.02 133.44.02 134.74.02 136.04.02 137.34.02 138.64.02 139.94.02 141.24.02 142.54.02 143.84.02 145.14.02 146.44.02 147.74.02 149.04.02 150.34.02 151.64.02 152.94.02 154.24.02 155.54.02 156.84.02 158.14.02 159.44.02 160.74.02 162.04.02 163.34.02 164.64.02 165.94.02 167.24.02 168.54.02 169.84.02 171.14.02 172.44.02 173.74.02 175.04.02 176.34.02 177.64.02 178.94.02 180.24.02 181.54.02 182.84.02 184.14.02 185.44.02 186.74.02 188.04.02 189.34.02 190.64.02 191.94.02 193.24.02 194.54.02 195.84.02 197.14.02 198.44.02 199.74.02 201.04.02 202.34.02 203.64.02 204.94.02 206.24.02 207.54.02 208.84.02 210.14.02 211.44.02 212.74.02 214.04.02 215.34.02 216.64.02 217.94.02 219.24.02 220.54.02 221.84.02 223.14.02 224.44.02 225.74.02 227.04.02 228.34.02 229.64.02 230.94.02 232.24.02 233.54.02 234.84.02 236.14.02 237.44.02 238.74.02 240.04.02 241.34.02 242.64.02 243.94.02 245.24.02 246.54.02 247.84.02 249.14.02 250.44.02 251.74.02 253.04.02 254.34.02 255.64.02 256.94.02 258.24.02 259.54.02 260.84.02 262.14.02 263.44.02 264.74.02 266.04.02 267.34.02 268.64.02 269.94.02 271.24.02 272.54.02 273.84.02 275.14.02 276.44.02 277.74.02 279.04.02 280.34.02 281.64.02 282.94.02 284.24.02 285.54.02 286.84.02 288.14.02 289.44.02 290.74.02 292.04.02 293.34.02 294.64.02 295.94.02 297.24.02 298.54.02 299.84.02 301.14.02 302.44.02 303.74.02 305.04.02 306.34.02 307.64.02 308.94.02 310.24.02 311.54.02 312.84.02 314.14.02 315.44.02 316.74.02 318.04.02 319.34.02 320.64.02 321.94.02 323.24.02 324.54.02 325.84.02 327.14.02 328.44.02 329.74.02 331.04.02 332.34.02 333.64.02 334.94.02 336.24.02 337.54.02 338.84.02 340.14.02 341.44.02 342.74.02 344.04.02 345.34.02 346.64.02 347.94.02 349.24.02 350.54.02 351.84.02 353.14.02 354.44.02 355.74.02 357.04.02 358.34.02 359.64.02 360.94.02 362.24.02 363.54.02 364.84.02 366.14.02 367.44.02 368.74.02 370.04.02 371.34.02 372.64.02 373.94.02 375.24.02 376.54.02 377.84.02 379.14.02 380.44.02 381.74.02 383.04.02 384.34.02 385.64.02 386.94.02 388.24.02 389.54.02 390.84.02 392.14.02 393.44.02 394.74.02 396.04.02 397.34.02 398.64.02 399.94.02 401.24.02 402.54.02 403.84.02 405.14.02 406.44.02 407.74.02 409.04.02 410.34.02 411.64.02 412.94.02 414.24.02 415.54.02 416.84.02 418.14.02 419.44.02 420.74.02 422.04.02 423.34.02 424.64.02 425.94.02 427.24.02 428.54.02 429.84.02 431.14.02 432.44.02 433.74.02 435.04.02 436.34.02 437.64.02 438.94.02 440.24.02 441.54.02 442.84.02 444.14.02 445.44.02 446.74.02 448.04.02 449.34.02 450.64.02 451.94.02 453.24.02 454.54.02 455.84.02 457.14.02 458.44.02 459.74.02 461.04.02 462.34.02 463.64.02 464.94.02 466.24.02 467.54.02 468.84.02 470.14.02 471.44.02 472.74.02 474.04.02 475.34.02 476.64.02 477.94.02 479.24.02 480.54.02 481.84.02 483.14.02 484.44.02 485.74.02 487.04.02 488.34.02 489.64.02 490.94.02 492.24.02 493.54.02 494.84.02 496.14.02 497.44.02 498.74.02 500.04.02"/>
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.23V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" fill="white"/>
         </svg>
-        <span>TikTok: <strong id="tt-followers">завантаження...</strong></span>
+        <span>TikTok: <strong id="tt-followers"><span class="loading"></span></strong></span>
       </div>
       <div class="stat-line">
         <svg class="stat-icon" viewBox="0 0 24 24" fill="#0088CC" xmlns="http://www.w3.org/2000/svg"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-        <span>Telegram: <strong id="tg-members">завантаження...</strong> підписників</span>
+        <span>Telegram: <strong id="tg-members"><span class="loading"></span></strong></span>
       </div>
     </div>
     <div class="social-hint">
@@ -210,6 +213,7 @@
   </div>
 
   <script>
+    // Створення блискіток
     function createSparkle() {
       const container = document.querySelector('.container');
       const sparkle = document.createElement('div');
@@ -221,10 +225,9 @@
       setTimeout(() => sparkle.remove(), 4000);
     }
     setInterval(createSparkle, 1500);
-
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // YouTube
+    // YouTube API
     async function updateYouTubeSubs() {
       const apiKey = 'AIzaSyCyis7v-XO1WehfDCWsf6IrkrdWtRqJhbg';
       const channelHandle = 'ostocer';
@@ -259,7 +262,71 @@
       }
     }
 
-    // Telegram
+    // TikTok через Apify API (з вашим ключем)
+    async function updateTikTokFollowers() {
+      const username = 'hapix167';
+      const APIFY_TOKEN = 'apify_api_Tm3ynd2UmAN0aquWGv2Mbxn0EXDxg905FiC9';
+      const ttEl = document.getElementById('tt-followers');
+      
+      try {
+        // Запускаємо Actor для отримання інформації про користувача
+        const runResponse = await fetch(`https://api.apify.com/v2/acts/data-slayer~tiktok-api-user-info-with-region/runs?token=${APIFY_TOKEN}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: username,
+            proxy: { useApifyProxy: true }
+          })
+        });
+        
+        if (!runResponse.ok) throw new Error('Failed to start actor');
+        
+        const runData = await runResponse.json();
+        const runId = runData.data.id;
+        const datasetId = runData.data.defaultDatasetId;
+        
+        // Чекаємо на завершення (максимум 30 секунд)
+        let attempts = 0;
+        let success = false;
+        
+        while (attempts < 10 && !success) {
+          await new Promise(resolve => setTimeout(resolve, 3000)); // Чекаємо 3 секунди
+          
+          // Перевіряємо статус
+          const statusRes = await fetch(`https://api.apify.com/v2/actor-runs/${runId}?token=${APIFY_TOKEN}`);
+          const statusData = await statusRes.json();
+          
+          if (statusData.data.status === 'SUCCEEDED') {
+            success = true;
+          } else if (statusData.data.status === 'FAILED' || statusData.data.status === 'TIMED_OUT') {
+            throw new Error('Actor failed');
+          }
+          attempts++;
+        }
+        
+        if (!success) throw new Error('Timeout waiting for actor');
+        
+        // Отримуємо результати
+        const datasetRes = await fetch(`https://api.apify.com/v2/datasets/${datasetId}/items?token=${APIFY_TOKEN}`);
+        const items = await datasetRes.json();
+        
+        if (items && items[0] && items[0].followerCount !== undefined) {
+          const count = items[0].followerCount;
+          ttEl.textContent = count.toLocaleString('uk-UA') + ' підписників';
+        } else if (items && items[0] && items[0].stats && items[0].stats.followerCount) {
+          // Альтернативна структура даних
+          const count = items[0].stats.followerCount;
+          ttEl.textContent = count.toLocaleString('uk-UA') + ' підписників';
+        } else {
+          throw new Error('No follower data found');
+        }
+      } catch (err) {
+        console.error('TikTok API error:', err);
+        ttEl.textContent = '63 підписники'; // Значення за замовчуванням
+      }
+    }
+
+    // Telegram API
     async function updateTelegramMembers() {
       const botToken = '8572184995:AAEgEWih_pq28d-mIBonsOQPr7r9kUSMCGk';
       const chatId = '-1002943143303';
@@ -272,7 +339,7 @@
           const count = data.result;
           let text = count.toLocaleString('uk-UA');
           if (count <= 1) text += ' (приєднуйся першим! 🔥)';
-          tgEl.textContent = text;
+          tgEl.textContent = text + ' підписників';
         } else {
           tgEl.textContent = '~10 підписників';
         }
@@ -282,54 +349,17 @@
       }
     }
 
-    // TikTok через tokcount.com з іншим проксі та надійнішим парсингом
-    async function updateTikTokFollowers() {
-      const username = 'hapix167';
-      const proxy = 'https://corsproxy.io/?'; // інший проксі, який краще працює
-      const url = `${proxy}${encodeURIComponent('https://tokcount.com/?user=' + username)}`;
-      const ttEl = document.getElementById('tt-followers');
+    // Запуск всіх функцій при завантаженні
+    document.addEventListener('DOMContentLoaded', () => {
+      updateYouTubeSubs();
+      updateTikTokFollowers();
+      updateTelegramMembers();
+    });
 
-      try {
-        ttEl.textContent = 'перевірка...'; // тимчасово, щоб бачити, що функція запустилася
-
-        const res = await fetch(url, {
-          headers: { 'Origin': window.location.origin }
-        });
-
-        if (!res.ok) throw new Error('Проксі відповів ' + res.status);
-
-        const html = await res.text();
-
-        // Дуже широкий пошук числа
-        const match = html.match(/(\d{1,3}(?:,\d{3})*)\s*(?:Followers|followers|підписників|Підписників)/i) ||
-                      html.match(/(\d+)\s*(?:Followers|followers|підписників|Підписників)/i) ||
-                      html.match(/followersCount&quot;:(\d+)/) ||
-                      html.match(/(\d{1,3}(?:,\d{3})*)\s*<[^>]*>Followers/);
-
-        console.log('TokCount HTML snippet:', html.substring(0, 500)); // для діагностики
-
-        if (match && match[1]) {
-          const count = parseInt(match[1].replace(/,/g, ''), 10);
-          ttEl.textContent = count.toLocaleString('uk-UA') + ' підписників';
-          console.log('Знайдено підписників:', count);
-        } else {
-          ttEl.textContent = '63 підписників';
-          console.log('Число не знайдено в HTML');
-        }
-      } catch (err) {
-        console.error('TokCount помилка:', err.message);
-        ttEl.textContent = '63 підписників';
-      }
-    }
-
-    // Запуск
-    updateYouTubeSubs();
-    updateTelegramMembers();
-    updateTikTokFollowers();
-
+    // Оновлення кожні 10 хвилин
     setInterval(updateYouTubeSubs, 600000);
+    setInterval(updateTikTokFollowers, 600000);
     setInterval(updateTelegramMembers, 600000);
-    setInterval(updateTikTokFollowers, 300000); // 5 хвилин
   </script>
 </body>
 </html>
