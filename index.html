@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+html_code = '''<!DOCTYPE html>
 <html lang="uk">
 <head>
   <meta charset="UTF-8">
@@ -262,17 +262,26 @@
       }
     }
 
-    // TikTok через Apify API (з вашим ключем)
+    // TikTok через Apify + AllOrigins CORS Proxy
     async function updateTikTokFollowers() {
       const username = 'hapix167';
       const APIFY_TOKEN = 'apify_api_Tm3ynd2UmAN0aquWGv2Mbxn0EXDxg905FiC9';
       const ttEl = document.getElementById('tt-followers');
       
+      // CORS проксі
+      const corsProxy = 'https://api.allorigins.win/raw?url=';
+      
       try {
-        // Запускаємо Actor для отримання інформації про користувача
-        const runResponse = await fetch(`https://api.apify.com/v2/acts/data-slayer~tiktok-api-user-info-with-region/runs?token=${APIFY_TOKEN}`, {
+        // Використовуємо Apify Actor через CORS проксі
+        const apifyUrl = `https://api.apify.com/v2/acts/data-slayer~tiktok-api-user-info-with-region/runs?token=${APIFY_TOKEN}`;
+        const proxyUrl = corsProxy + encodeURIComponent(apifyUrl);
+        
+        const runResponse = await fetch(proxyUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Origin': window.location.origin
+          },
           body: JSON.stringify({
             username: username,
             proxy: { useApifyProxy: true }
@@ -285,15 +294,16 @@
         const runId = runData.data.id;
         const datasetId = runData.data.defaultDatasetId;
         
-        // Чекаємо на завершення (максимум 30 секунд)
+        // Чекаємо на завершення
         let attempts = 0;
         let success = false;
         
         while (attempts < 10 && !success) {
-          await new Promise(resolve => setTimeout(resolve, 3000)); // Чекаємо 3 секунди
+          await new Promise(resolve => setTimeout(resolve, 3000));
           
-          // Перевіряємо статус
-          const statusRes = await fetch(`https://api.apify.com/v2/actor-runs/${runId}?token=${APIFY_TOKEN}`);
+          const statusUrl = `https://api.apify.com/v2/actor-runs/${runId}?token=${APIFY_TOKEN}`;
+          const statusProxyUrl = corsProxy + encodeURIComponent(statusUrl);
+          const statusRes = await fetch(statusProxyUrl);
           const statusData = await statusRes.json();
           
           if (statusData.data.status === 'SUCCEEDED') {
@@ -304,25 +314,27 @@
           attempts++;
         }
         
-        if (!success) throw new Error('Timeout waiting for actor');
+        if (!success) throw new Error('Timeout');
         
         // Отримуємо результати
-        const datasetRes = await fetch(`https://api.apify.com/v2/datasets/${datasetId}/items?token=${APIFY_TOKEN}`);
+        const datasetUrl = `https://api.apify.com/v2/datasets/${datasetId}/items?token=${APIFY_TOKEN}`;
+        const datasetProxyUrl = corsProxy + encodeURIComponent(datasetUrl);
+        const datasetRes = await fetch(datasetProxyUrl);
         const items = await datasetRes.json();
         
         if (items && items[0] && items[0].followerCount !== undefined) {
           const count = items[0].followerCount;
           ttEl.textContent = count.toLocaleString('uk-UA') + ' підписників';
         } else if (items && items[0] && items[0].stats && items[0].stats.followerCount) {
-          // Альтернативна структура даних
           const count = items[0].stats.followerCount;
           ttEl.textContent = count.toLocaleString('uk-UA') + ' підписників';
         } else {
-          throw new Error('No follower data found');
+          throw new Error('No data');
         }
       } catch (err) {
         console.error('TikTok API error:', err);
-        ttEl.textContent = '63 підписники'; // Значення за замовчуванням
+        // Fallback на статичне значення
+        ttEl.textContent = '63 підписники';
       }
     }
 
@@ -349,7 +361,7 @@
       }
     }
 
-    // Запуск всіх функцій при завантаженні
+    // Запуск
     document.addEventListener('DOMContentLoaded', () => {
       updateYouTubeSubs();
       updateTikTokFollowers();
@@ -362,4 +374,4 @@
     setInterval(updateTelegramMembers, 600000);
   </script>
 </body>
-</html>
+</html>'''
