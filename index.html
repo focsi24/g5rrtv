@@ -262,25 +262,23 @@ html_code = '''<!DOCTYPE html>
       }
     }
 
-    // TikTok через Apify + corsproxy.io (підтримує POST)
+    // TikTok через Apify + corsproxy.io
     async function updateTikTokFollowers() {
       const username = 'hapix167';
       const APIFY_TOKEN = 'apify_api_Tm3ynd2UmAN0aquWGv2Mbxn0EXDxg905FiC9';
       const ttEl = document.getElementById('tt-followers');
       
-      // ✅ corsproxy.io підтримує POST запити
+      // ✅ corsproxy.io підтримує POST
       const corsProxy = 'https://corsproxy.io/?';
       
       try {
-        // Запускаємо Actor через проксі
         const apifyUrl = `https://api.apify.com/v2/acts/data-slayer~tiktok-api-user-info-with-region/runs?token=${APIFY_TOKEN}`;
         const proxyUrl = corsProxy + encodeURIComponent(apifyUrl);
         
         const runResponse = await fetch(proxyUrl, {
           method: 'POST',
           headers: { 
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             username: username,
@@ -288,22 +286,13 @@ html_code = '''<!DOCTYPE html>
           })
         });
         
-        if (!runResponse.ok) {
-          const errorText = await runResponse.text();
-          console.error('Apify run error:', errorText);
-          throw new Error('Failed to start actor: ' + runResponse.status);
-        }
+        if (!runResponse.ok) throw new Error('Failed to start actor');
         
         const runData = await runResponse.json();
-        
-        if (!runData.data || !runData.data.id) {
-          throw new Error('Invalid run response');
-        }
-        
         const runId = runData.data.id;
         const datasetId = runData.data.defaultDatasetId;
         
-        // Чекаємо на завершення (максимум 30 секунд)
+        // Чекаємо на завершення
         let attempts = 0;
         let success = false;
         
@@ -313,22 +302,18 @@ html_code = '''<!DOCTYPE html>
           const statusUrl = `https://api.apify.com/v2/actor-runs/${runId}?token=${APIFY_TOKEN}`;
           const statusProxyUrl = corsProxy + encodeURIComponent(statusUrl);
           
-          try {
-            const statusRes = await fetch(statusProxyUrl);
-            const statusData = await statusRes.json();
-            
-            if (statusData.data.status === 'SUCCEEDED') {
-              success = true;
-            } else if (statusData.data.status === 'FAILED' || statusData.data.status === 'TIMED_OUT') {
-              throw new Error('Actor failed: ' + statusData.data.status);
-            }
-          } catch (e) {
-            console.log('Status check error, retrying...', e);
+          const statusRes = await fetch(statusProxyUrl);
+          const statusData = await statusRes.json();
+          
+          if (statusData.data.status === 'SUCCEEDED') {
+            success = true;
+          } else if (statusData.data.status === 'FAILED' || statusData.data.status === 'TIMED_OUT') {
+            throw new Error('Actor failed');
           }
           attempts++;
         }
         
-        if (!success) throw new Error('Timeout waiting for actor');
+        if (!success) throw new Error('Timeout');
         
         // Отримуємо результати
         const datasetUrl = `https://api.apify.com/v2/datasets/${datasetId}/items?token=${APIFY_TOKEN}`;
@@ -344,12 +329,11 @@ html_code = '''<!DOCTYPE html>
           const count = items[0].stats.followerCount;
           ttEl.textContent = count.toLocaleString('uk-UA') + ' підписників';
         } else {
-          console.log('TikTok response structure:', items);
-          throw new Error('No follower data found');
+          throw new Error('No data');
         }
       } catch (err) {
         console.error('TikTok API error:', err);
-        ttEl.textContent = '63 підписники'; // Fallback
+        ttEl.textContent = '63 підписники';
       }
     }
 
