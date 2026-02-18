@@ -183,7 +183,7 @@
       </div>
       <div class="stat-line">
         <svg class="stat-icon" viewBox="0 0 24 24" fill="#0088CC" xmlns="http://www.w3.org/2000/svg"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-        <span>Telegram: <strong id="tg-members">завантаження...</strong> підписників</span>
+        <span>Telegram: <strong id="tg-members">завантаження...</strong></span>
       </div>
     </div>
     <div class="social-hint">
@@ -210,7 +210,7 @@
 
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // YouTube динаміка
+    // YouTube (реальні підписники)
     async function updateYouTubeSubs() {
       const apiKey = 'AIzaSyCyis7v-XO1WehfDCWsf6IrkrdWtRqJhbg';
       const channelHandle = 'ostocer';
@@ -222,7 +222,7 @@
         let channelId = searchData?.items?.[0]?.id?.channelId;
 
         if (!channelId) {
-          subsEl.textContent = '4 підписники';
+          subsEl.textContent = '0 підписників';
           return;
         }
 
@@ -232,20 +232,21 @@
         if (statsData?.items?.[0]?.statistics) {
           const stats = statsData.items[0].statistics;
           if (stats.hiddenSubscriberCount) {
-            subsEl.textContent = '4 підписники (приховано)';
+            subsEl.textContent = 'приховано';
           } else {
-            subsEl.textContent = Number(stats.subscriberCount).toLocaleString('uk-UA') + ' підписників';
+            const count = Number(stats.subscriberCount);
+            subsEl.textContent = count.toLocaleString('uk-UA') + (count === 1 ? ' підписник' : ' підписників');
           }
         } else {
-          subsEl.textContent = '4 підписники';
+          subsEl.textContent = '0 підписників';
         }
       } catch (err) {
         console.error('YouTube API error:', err);
-        subsEl.textContent = '4 підписники';
+        subsEl.textContent = '0 підписників';
       }
     }
 
-    // Telegram динаміка
+    // Telegram (реальна кількість підписників, без приблизних чисел)
     async function updateTelegramMembers() {
       const botToken = '8572184995:AAEgEWih_pq28d-mIBonsOQPr7r9kUSMCGk';
       const chatId = '-1002943143303';
@@ -254,17 +255,16 @@
       try {
         const res = await fetch(`https://api.telegram.org/bot\( {botToken}/getChatMemberCount?chat_id= \){chatId}`);
         const data = await res.json();
+
         if (data.ok && typeof data.result === 'number') {
           const count = data.result;
-          let text = count.toLocaleString('uk-UA');
-          if (count <= 1) text += ' (приєднуйся першим! 🔥)';
-          tgEl.textContent = text;
+          tgEl.textContent = count.toLocaleString('uk-UA') + (count === 1 ? ' підписник' : ' підписників');
         } else {
-          tgEl.textContent = '\~10 підписників';
+          tgEl.textContent = '0 підписників';
         }
       } catch (err) {
         console.error('Telegram API error:', err);
-        tgEl.textContent = '\~10 підписників';
+        tgEl.textContent = '0 підписників';
       }
     }
 
@@ -272,9 +272,9 @@
     updateYouTubeSubs();
     updateTelegramMembers();
 
-    setInterval(updateYouTubeSubs, 600000);      // 10 хв
-    setInterval(updateTelegramMembers, 600000);  // 10 хв
+    // Оновлення кожні 10 хвилин
+    setInterval(updateYouTubeSubs, 600000);
+    setInterval(updateTelegramMembers, 600000);
   </script>
 </body>
 </html>
-        
