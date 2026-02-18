@@ -1,4 +1,4 @@
-html_code = '''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="uk">
 <head>
   <meta charset="UTF-8">
@@ -227,27 +227,34 @@ html_code = '''<!DOCTYPE html>
     setInterval(createSparkle, 1500);
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // YouTube API
+    // YouTube API - використовуємо проксі для обходу CORS
     async function updateYouTubeSubs() {
       const apiKey = 'AIzaSyCyis7v-XO1WehfDCWsf6IrkrdWtRqJhbg';
       const channelHandle = 'ostocer';
       const subsEl = document.getElementById('youtube-subs');
 
       try {
-        const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${channelHandle}&key=${apiKey}`);
+        // Використовуємо проксі для YouTube
+        const corsProxy = 'https://api.allorigins.win/get?url=';
+        const searchUrl = encodeURIComponent(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${channelHandle}&key=${apiKey}`);
+        
+        const searchRes = await fetch(corsProxy + searchUrl);
         const searchData = await searchRes.json();
-        let channelId = searchData?.items?.[0]?.id?.channelId;
+        const items = JSON.parse(searchData.contents).items;
+        
+        let channelId = items?.[0]?.id?.channelId;
 
         if (!channelId) {
           subsEl.textContent = '4 підписники';
           return;
         }
 
-        const statsRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`);
+        const statsUrl = encodeURIComponent(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`);
+        const statsRes = await fetch(corsProxy + statsUrl);
         const statsData = await statsRes.json();
+        const stats = JSON.parse(statsData.contents).items?.[0]?.statistics;
 
-        if (statsData?.items?.[0]?.statistics) {
-          const stats = statsData.items[0].statistics;
+        if (stats) {
           if (stats.hiddenSubscriberCount) {
             subsEl.textContent = '4 підписники (приховано)';
           } else {
@@ -262,82 +269,38 @@ html_code = '''<!DOCTYPE html>
       }
     }
 
-    // TikTok через Apify + corsproxy.io
+    // TikTok - використовуємо Dumpling AI (без CORS)
     async function updateTikTokFollowers() {
       const username = 'hapix167';
-      const APIFY_TOKEN = 'apify_api_Tm3ynd2UmAN0aquWGv2Mbxn0EXDxg905FiC9';
       const ttEl = document.getElementById('tt-followers');
       
-      // ✅ corsproxy.io підтримує POST
-      const corsProxy = 'https://corsproxy.io/?';
-      
       try {
-        const apifyUrl = `https://api.apify.com/v2/acts/data-slayer~tiktok-api-user-info-with-region/runs?token=${APIFY_TOKEN}`;
-        const proxyUrl = corsProxy + encodeURIComponent(apifyUrl);
-        
-        const runResponse = await fetch(proxyUrl, {
+        // Dumpling AI API - без CORS обмежень
+        const response = await fetch('https://api.dumplingai.com/v1/tiktok/user', {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json'
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer demo' // безкоштовний tier
           },
-          body: JSON.stringify({
-            username: username,
-            proxy: { useApifyProxy: true }
-          })
+          body: JSON.stringify({ username: username })
         });
         
-        if (!runResponse.ok) throw new Error('Failed to start actor');
+        if (!response.ok) throw new Error('API error');
         
-        const runData = await runResponse.json();
-        const runId = runData.data.id;
-        const datasetId = runData.data.defaultDatasetId;
-        
-        // Чекаємо на завершення
-        let attempts = 0;
-        let success = false;
-        
-        while (attempts < 10 && !success) {
-          await new Promise(resolve => setTimeout(resolve, 3000));
-          
-          const statusUrl = `https://api.apify.com/v2/actor-runs/${runId}?token=${APIFY_TOKEN}`;
-          const statusProxyUrl = corsProxy + encodeURIComponent(statusUrl);
-          
-          const statusRes = await fetch(statusProxyUrl);
-          const statusData = await statusRes.json();
-          
-          if (statusData.data.status === 'SUCCEEDED') {
-            success = true;
-          } else if (statusData.data.status === 'FAILED' || statusData.data.status === 'TIMED_OUT') {
-            throw new Error('Actor failed');
-          }
-          attempts++;
-        }
-        
-        if (!success) throw new Error('Timeout');
-        
-        // Отримуємо результати
-        const datasetUrl = `https://api.apify.com/v2/datasets/${datasetId}/items?token=${APIFY_TOKEN}`;
-        const datasetProxyUrl = corsProxy + encodeURIComponent(datasetUrl);
-        
-        const datasetRes = await fetch(datasetProxyUrl);
-        const items = await datasetRes.json();
-        
-        if (items && items[0] && items[0].followerCount !== undefined) {
-          const count = items[0].followerCount;
-          ttEl.textContent = count.toLocaleString('uk-UA') + ' підписників';
-        } else if (items && items[0] && items[0].stats && items[0].stats.followerCount) {
-          const count = items[0].stats.followerCount;
-          ttEl.textContent = count.toLocaleString('uk-UA') + ' підписників';
+        const data = await response.json();
+        if (data.followers) {
+          ttEl.textContent = Number(data.followers).toLocaleString('uk-UA') + ' підписників';
         } else {
           throw new Error('No data');
         }
       } catch (err) {
         console.error('TikTok API error:', err);
+        // Fallback на статичне значення
         ttEl.textContent = '63 підписники';
       }
     }
 
-    // Telegram API
+    // Telegram API - працює без проксі
     async function updateTelegramMembers() {
       const botToken = '8572184995:AAEgEWih_pq28d-mIBonsOQPr7r9kUSMCGk';
       const chatId = '-1002943143303';
@@ -373,4 +336,4 @@ html_code = '''<!DOCTYPE html>
     setInterval(updateTelegramMembers, 600000);
   </script>
 </body>
-</html>'''
+</html>
