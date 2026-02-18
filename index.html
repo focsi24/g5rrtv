@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="uk">
 <head>
   <meta charset="UTF-8">
@@ -210,14 +210,14 @@
 
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // YouTube — реальні підписники
+    // YouTube — реальні підписники (виправлений запит без зайвих символів)
     async function updateYouTubeSubs() {
       const apiKey = 'AIzaSyCyis7v-XO1WehfDCWsf6IrkrdWtRqJhbg';
       const channelHandle = 'ostocer';
       const subsEl = document.getElementById('youtube-subs');
 
       try {
-        const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=\( {channelHandle}&key= \){apiKey}`);
+        const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${channelHandle}&key=${apiKey}`);
         const searchData = await searchRes.json();
         let channelId = searchData?.items?.[0]?.id?.channelId;
 
@@ -226,7 +226,7 @@
           return;
         }
 
-        const statsRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=\( {channelId}&key= \){apiKey}`);
+        const statsRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`);
         const statsData = await statsRes.json();
 
         if (statsData?.items?.[0]?.statistics) {
@@ -246,14 +246,14 @@
       }
     }
 
-    // Telegram — тільки реальна кількість підписників, без fallback'ів
+    // Telegram — реальна кількість підписників (виправлений URL)
     async function updateTelegramMembers() {
       const botToken = '8572184995:AAEgEWih_pq28d-mIBonsOQPr7r9kUSMCGk';
       const chatId = '-1002943143303';
       const tgEl = document.getElementById('tg-members');
 
       try {
-        const res = await fetch(`https://api.telegram.org/bot\( {botToken}/getChatMemberCount?chat_id= \){chatId}`);
+        const res = await fetch(`https://api.telegram.org/bot${botToken}/getChatMemberCount?chat_id=${chatId}`);
         const data = await res.json();
 
         if (data.ok && typeof data.result === 'number') {
