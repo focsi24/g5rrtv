@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Parzivalled — Соціальні мережі</title>
   <style>
     *, *::before, *::after {
@@ -11,26 +11,19 @@
       box-sizing: border-box;
     }
 
-    html, body {
-      height: 100%;
-      overflow-x: hidden;
-    }
-
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #0a0e27;
       color: #e0e0ff;
       min-height: 100vh;
+      padding: 16px 12px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 12px 10px;
       line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
     }
 
-    .bg-animation {
+    .bg {
       position: fixed;
       inset: 0;
       z-index: -2;
@@ -41,8 +34,8 @@
       position: absolute;
       inset: -50%;
       background: linear-gradient(45deg, #0057B7, #1a73e8, #FFD700, #ffa500);
-      animation: gradientShift 30s ease infinite;
-      opacity: 0.08;
+      animation: gradientShift 28s ease infinite;
+      opacity: 0.09;
     }
 
     @keyframes gradientShift {
@@ -51,33 +44,33 @@
     }
 
     .container {
-      background: rgba(15, 20, 50, 0.5);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 24px;
-      padding: 28px 18px;
+      background: rgba(15, 20, 50, 0.48);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.11);
+      border-radius: 28px;
+      padding: 32px 20px;
       width: 100%;
-      max-width: 100%;
-      margin: 16px auto;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      max-width: 520px;
+      margin: 20px auto;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.55);
     }
 
     .profile {
       text-align: center;
-      margin-bottom: 28px;
+      margin-bottom: 32px;
     }
 
     .profile-image {
-      width: 110px;
-      height: 110px;
-      margin: 0 auto 18px;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 20px;
       border-radius: 50%;
-      border: 4px solid transparent;
+      border: 5px solid transparent;
       background: linear-gradient(white, white) padding-box,
                   linear-gradient(135deg, #0057B7, #FFD700) border-box;
       overflow: hidden;
-      box-shadow: 0 6px 24px rgba(0, 87, 183, 0.4);
+      box-shadow: 0 8px 32px rgba(0, 87, 183, 0.45);
     }
 
     .profile-image img {
@@ -87,70 +80,73 @@
     }
 
     h1 {
-      font-size: 2.2rem;
+      font-size: 2.6rem;
       font-weight: 900;
-      letter-spacing: -0.8px;
+      letter-spacing: -1px;
       background: linear-gradient(90deg, #FFD700, #1a73e8, #FFD700);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .subtitle {
       color: #a0a0ff;
-      font-size: 1rem;
-      margin-bottom: 10px;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
     }
 
     .badge {
       display: inline-block;
-      padding: 5px 14px;
+      padding: 6px 16px;
       background: linear-gradient(135deg, #0057B7, #1a73e8);
       color: white;
       border-radius: 999px;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: 700;
     }
 
     .about {
-      color: #d0d0ff;
-      font-size: 0.97rem;
+      font-size: 1rem;
       text-align: center;
-      margin: 0 auto 28px;
-      max-width: 92%;
-      opacity: 0.9;
+      margin: 0 auto 32px;
+      max-width: 90%;
+      opacity: 0.92;
+      line-height: 1.55;
     }
 
     .links {
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      margin: 28px 0;
+      gap: 16px;
+      margin: 32px 0;
     }
 
     .link-button {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      padding: 18px 22px;
-      font-size: 1.1rem;
+      gap: 14px;
+      padding: 18px 24px;
+      font-size: 1.15rem;
       font-weight: 700;
       color: white;
       text-decoration: none;
-      border-radius: 18px;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.22s ease;
-      border: 2px solid rgba(255,255,255,0.08);
-      min-height: 54px;
+      border-radius: 20px;
+      transition: all 0.25s ease;
+      border: 2px solid rgba(255,255,255,0.09);
+      min-height: 56px;
       touch-action: manipulation;
     }
 
+    .link-button:hover,
+    .link-button:focus-visible {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    }
+
     .link-button:active {
-      transform: scale(0.97);
-      opacity: 0.92;
+      transform: scale(0.98);
     }
 
     .youtube { background: linear-gradient(135deg, #FF0000, #b30000); }
@@ -158,27 +154,27 @@
     .support  { background: linear-gradient(135deg, #e91e63, #c2185b); }
 
     .icon {
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
       flex-shrink: 0;
     }
 
     .live-stats {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 18px;
-      padding: 18px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 20px;
+      padding: 20px;
       text-align: center;
-      margin: 28px 0;
+      margin: 32px 0;
     }
 
     .stat-line {
-      font-size: 1rem;
-      margin: 10px 0;
+      font-size: 1.05rem;
+      margin: 12px 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 10px;
     }
 
     .stat-line strong {
@@ -189,17 +185,49 @@
     .footer {
       text-align: center;
       color: #8888aa;
-      font-size: 0.85rem;
-      margin-top: 32px;
-      line-height: 1.5;
+      font-size: 0.9rem;
+      margin-top: 40px;
+      line-height: 1.6;
     }
 
-    @media (min-width: 400px) {
-      body { padding: 16px 14px; }
-      .container { padding: 32px 22px; border-radius: 28px; }
-      h1 { font-size: 2.4rem; }
-      .profile-image { width: 120px; height: 120px; }
-      .link-button { font-size: 1.15rem; padding: 20px 26px; }
+    /* ──────────────────────────────────────────────
+       Адаптація під маленькі екрани (телефони)
+    ────────────────────────────────────────────── */
+    @media (max-width: 480px) {
+      body { padding: 12px 10px; }
+      .container {
+        padding: 28px 18px;
+        border-radius: 24px;
+        margin: 16px auto;
+      }
+      .profile-image { width: 110px; height: 110px; }
+      h1 { font-size: 2.2rem; }
+      .subtitle { font-size: 1rem; }
+      .about { font-size: 0.97rem; max-width: 94%; }
+      .link-button {
+        font-size: 1.08rem;
+        padding: 16px 22px;
+        gap: 12px;
+      }
+      .icon { width: 26px; height: 26px; }
+      .live-stats { padding: 18px; }
+      .stat-line { font-size: 1rem; }
+      .footer { font-size: 0.85rem; }
+    }
+
+    /* ──────────────────────────────────────────────
+       Трохи більше простору на планшетах і ПК
+    ────────────────────────────────────────────── */
+    @media (min-width: 768px) {
+      .container {
+        max-width: 620px;
+        padding: 48px 40px;
+        border-radius: 36px;
+      }
+      h1 { font-size: 3.2rem; }
+      .profile-image { width: 160px; height: 160px; }
+      .link-button { font-size: 1.3rem; padding: 22px 32px; }
+      .about { font-size: 1.1rem; max-width: 80%; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -209,7 +237,7 @@
 </head>
 <body>
 
-  <div class="bg-animation">
+  <div class="bg">
     <div class="bg-gradient"></div>
   </div>
 
@@ -246,7 +274,7 @@
     </div>
 
     <div class="live-stats">
-      <p style="font-size:1.15rem; font-weight:700; margin-bottom:14px;">Наші цифри зараз:</p>
+      <p style="font-size:1.2rem; font-weight:700; margin-bottom:16px;">Наші цифри зараз:</p>
       <div class="stat-line">
         <svg class="icon" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 0.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
         <span>YouTube: <strong>4 підписники</strong></span>
@@ -255,7 +283,7 @@
         <svg class="icon" viewBox="0 0 24 24" fill="#0088CC"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
         <span>Telegram: <strong>4 підписники</strong></span>
       </div>
-      <p style="margin-top:16px; font-size:0.92rem; opacity:0.8;">
+      <p style="margin-top:20px; font-size:0.95rem; opacity:0.8;">
         Тільки стартуємо — стань одним з перших! 🚀
       </p>
     </div>
