@@ -54,11 +54,18 @@
       max-width: 520px;
       margin: 20px auto;
       box-shadow: 0 10px 40px rgba(0,0,0,0.55);
+      animation: fadeInContainer 1.2s ease-out;
+    }
+
+    @keyframes fadeInContainer {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     .profile {
       text-align: center;
       margin-bottom: 32px;
+      animation: fadeIn 1.4s ease-out 0.2s both;
     }
 
     .profile-image {
@@ -111,8 +118,41 @@
       text-align: center;
       margin: 0 auto 32px;
       max-width: 90%;
-      opacity: 0.92;
-      line-height: 1.55;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1.2s ease-out 0.6s forwards;
+      line-height: 1.6;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 0.92;
+        transform: translateY(0);
+      }
+    }
+
+    .highlight {
+      background: linear-gradient(90deg, #FFD700, #ffaa00, #FFD700);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 700;
+      background-size: 200% 100%;
+      animation: shine 4s linear infinite;
+      text-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+      padding: 0 4px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .highlight:hover {
+      transform: scale(1.04);
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
+    }
+
+    @keyframes shine {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
     }
 
     .links {
@@ -151,7 +191,6 @@
 
     .youtube { background: linear-gradient(135deg, #FF0000, #b30000); }
     .telegram { background: linear-gradient(135deg, #0088CC, #005f99); }
-    .support  { background: linear-gradient(135deg, #e91e63, #c2185b); }
 
     .icon {
       width: 28px;
@@ -166,6 +205,7 @@
       padding: 20px;
       text-align: center;
       margin: 32px 0;
+      animation: fadeIn 1.6s ease-out 0.9s both;
     }
 
     .stat-line {
@@ -188,42 +228,30 @@
       font-size: 0.9rem;
       margin-top: 40px;
       line-height: 1.6;
+      opacity: 0;
+      animation: fadeIn 2s ease-out 1.2s forwards;
     }
 
-    /* ──────────────────────────────────────────────
-       Адаптація під маленькі екрани (телефони)
-    ────────────────────────────────────────────── */
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
     @media (max-width: 480px) {
       body { padding: 12px 10px; }
-      .container {
-        padding: 28px 18px;
-        border-radius: 24px;
-        margin: 16px auto;
-      }
+      .container { padding: 28px 18px; border-radius: 24px; margin: 16px auto; }
       .profile-image { width: 110px; height: 110px; }
       h1 { font-size: 2.2rem; }
       .subtitle { font-size: 1rem; }
       .about { font-size: 0.97rem; max-width: 94%; }
-      .link-button {
-        font-size: 1.08rem;
-        padding: 16px 22px;
-        gap: 12px;
-      }
+      .link-button { font-size: 1.08rem; padding: 16px 22px; gap: 12px; }
       .icon { width: 26px; height: 26px; }
       .live-stats { padding: 18px; }
       .stat-line { font-size: 1rem; }
       .footer { font-size: 0.85rem; }
     }
 
-    /* ──────────────────────────────────────────────
-       Трохи більше простору на планшетах і ПК
-    ────────────────────────────────────────────── */
     @media (min-width: 768px) {
-      .container {
-        max-width: 620px;
-        padding: 48px 40px;
-        border-radius: 36px;
-      }
+      .container { max-width: 620px; padding: 48px 40px; border-radius: 36px; }
       h1 { font-size: 3.2rem; }
       .profile-image { width: 160px; height: 160px; }
       .link-button { font-size: 1.3rem; padding: 22px 32px; }
@@ -231,7 +259,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      * { animation: none !important; transition: none !important; }
+      *, *::before, *::after { animation: none !important; transition: none !important; }
     }
   </style>
 </head>
@@ -253,8 +281,8 @@
     </div>
 
     <div class="about">
-      Стрімимо ігри, реакції, треш, меми та просто тусимо по-українськи.<br>
-      Якщо любиш чіл + тролінг + патріотичний вайб — <strong>приєднуйся</strong>, буде цікаво!
+      <span class="highlight">Люблю грати в CS2, дивитися фільми та кіберспортивні матчі.</span><br>
+      Якщо ти теж фанат CS, кіно та esports — <strong>приєднуйся</strong>, буде цікаво!
     </div>
 
     <div class="links">
@@ -266,10 +294,6 @@
       <a href="https://t.me/berlogarozdumiv" target="_blank" rel="noopener" class="link-button telegram" aria-label="Telegram Берлога">
         <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
         <span>Telegram</span>
-      </a>
-
-      <a href="https://send.monobank.ua/jar/твій_jar_посилання_тут" target="_blank" rel="noopener" class="link-button support" aria-label="Підтримати каву">
-        <span>☕ Підтримати каву</span>
       </a>
     </div>
 
