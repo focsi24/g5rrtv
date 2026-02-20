@@ -286,25 +286,46 @@
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    function fmt(n) {
-      return n.toLocaleString('uk-UA') + (n === 1 ? ' підписник' : n === 2 || n === 3 || n === 4 ? ' підписники' : ' підписників');
+    function fmt(n, singular = 'підписник', plural2_4 = 'підписники', plural5 = 'підписників') {
+      n = Number(n);
+      if (isNaN(n)) return 'невідомо';
+      if (n === 1) return n + ' ' + singular;
+      if (n >= 2 && n <= 4) return n + ' ' + plural2_4;
+      return n + ' ' + plural5;
     }
 
     async function updateYouTubeSubs() {
       const apiKey = 'AIzaSyCyis7v-XO1WehfDCWsf6IrkrdWtRqJhbg';
       const el = document.getElementById('youtube-subs');
       try {
-        const s = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=ostocer&key=${apiKey}`);
-        const sd = await s.json();
-        const channelId = sd?.items?.[0]?.id?.channelId;
-        if (!channelId) { el.textContent = 'невідомо'; return; }
-        const r = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=\( {channelId}&key= \){apiKey}`);
-        const d = await r.json();
-        const stats = d?.items?.[0]?.statistics;
-        if (stats?.hiddenSubscriberCount) { el.textContent = 'приховано'; }
-        else { el.textContent = fmt(Number(stats?.subscriberCount) || 0); }
+        const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=ostocer&key=${apiKey}`);
+        if (!searchRes.ok) throw new Error(`Search HTTP ${searchRes.status}`);
+        const searchData = await searchRes.json();
+
+        if (!searchData.items?.length) {
+          el.textContent = 'канал не знайдено';
+          return;
+        }
+
+        const channelId = searchData.items[0].id.channelId;
+
+        const statsRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=\( {channelId}&key= \){apiKey}`);
+        if (!statsRes.ok) throw new Error(`Stats HTTP ${statsRes.status}`);
+        const statsData = await statsRes.json();
+
+        const stats = statsData?.items?.[0]?.statistics;
+        if (!stats) {
+          el.textContent = 'немає даних';
+          return;
+        }
+
+        if (stats.hiddenSubscriberCount) {
+          el.textContent = 'приховано';
+        } else {
+          el.textContent = fmt(stats.subscriberCount);
+        }
       } catch (e) {
-        console.error(e);
+        console.error('YouTube API помилка:', e);
         el.textContent = 'помилка';
       }
     }
@@ -314,19 +335,26 @@
       const chatId = '-1002943143303';
       const el = document.getElementById('tg-members');
       try {
-        const r = await fetch(`https://api.telegram.org/bot\( {botToken}/getChatMemberCount?chat_id= \){chatId}`);
-        const d = await r.json();
-        if (d.ok) { el.textContent = fmt(d.result); }
-        else { el.textContent = 'невідомо'; }
+        const res = await fetch(`https://api.telegram.org/bot\( {botToken}/getChatMemberCount?chat_id= \){chatId}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        if (data.ok) {
+          el.textContent = fmt(data.result, 'учасник', 'учасники', 'учасників');
+        } else {
+          console.error('Telegram API помилка:', data);
+          el.textContent = 'немає доступу';
+        }
       } catch (e) {
-        console.error(e);
-        el.textContent = 'помилка';
+        console.error('Telegram помилка:', e);
+        el.textContent = 'немає доступу';
       }
     }
 
+    // Запуск оновлення
     updateYouTubeSubs();
     updateTelegramMembers();
-    setInterval(updateYouTubeSubs, 600000);
+    setInterval(updateYouTubeSubs, 600000);     // кожні 10 хв
     setInterval(updateTelegramMembers, 600000);
 
     // ──────────────────────────────────────────────
@@ -414,7 +442,7 @@
     requestAnimationFrame(ts => draw(ts / 1000));
 
     // ──────────────────────────────────────────────
-    // Лічильник відвідувачів
+    // Лічильник відвідувачів (за день)
     // ──────────────────────────────────────────────
     function initVisitorCounter() {
       const key = 'parz_visitors';
@@ -433,7 +461,7 @@
     initVisitorCounter();
 
     // ──────────────────────────────────────────────
-    // Зірки
+    // Анімовані зірки
     // ──────────────────────────────────────────────
     const starsCanvas = document.getElementById('stars-canvas');
     const sctx = starsCanvas.getContext('2d');
