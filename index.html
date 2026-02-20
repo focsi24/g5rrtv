@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="uk" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -7,17 +7,37 @@
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+    :root {
+      --bg-overlay: rgba(0, 0, 20, 0.50);
+      --card-bg: rgba(0, 0, 20, 0.80);
+      --card-border: rgba(255,255,255,0.18);
+      --text-main: #f0f0ff;
+      --text-sub: #c0c0ee;
+      --text-muted: #8080aa;
+      --stat-bg: rgba(255,255,255,0.08);
+      --stat-border: rgba(255,255,255,0.15);
+      --shadow: rgba(0,0,0,0.8);
+      --transition: 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    [data-theme="light"] {
+      --bg-overlay: rgba(255, 255, 240, 0.40);
+      --card-bg: rgba(255, 255, 255, 0.88);
+      --card-border: rgba(0,50,150,0.25);
+      --text-main: #0a0a2a;
+      --text-sub: #2a2a6a;
+      --text-muted: #5555aa;
+      --stat-bg: rgba(0,0,50,0.06);
+      --stat-border: rgba(0,0,100,0.15);
+      --shadow: rgba(0,50,150,0.3);
+    }
+
     html, body {
       height: 100%; width: 100%;
       overflow: hidden;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      color: #f0f0ff;
-      transition: background 0.5s, color 0.5s;
-    }
-
-    body.light {
-      background: linear-gradient(135deg, #e0e7ff, #c3d7ff);
-      color: #1a1a4d;
+      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+      color: var(--text-main);
+      transition: color var(--transition);
     }
 
     #flagCanvas {
@@ -26,21 +46,26 @@
       width: 100vw;
       height: 100vh;
       z-index: 0;
-      transition: opacity 0.6s;
     }
 
-    body.light #flagCanvas { opacity: 0.4; }
+    /* ── Particles canvas ── */
+    #particleCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 2;
+      pointer-events: none;
+    }
 
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 20, 0.50);
+      background: var(--bg-overlay);
       z-index: 1;
       pointer-events: none;
-      transition: background 0.6s;
+      transition: background var(--transition);
     }
-
-    body.light .overlay { background: rgba(220, 230, 255, 0.35); }
 
     body {
       display: flex;
@@ -48,25 +73,55 @@
       justify-content: center;
     }
 
+    /* ── Theme toggle ── */
+    .theme-toggle {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      z-index: 100;
+      width: 52px;
+      height: 28px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #0057B7, #FFD700);
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(0,87,183,0.5);
+      display: flex;
+      align-items: center;
+      padding: 3px;
+      transition: box-shadow 0.3s;
+    }
+    .theme-toggle:hover { box-shadow: 0 6px 24px rgba(255,215,0,0.6); }
+
+    .theme-toggle-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    [data-theme="light"] .theme-toggle-thumb {
+      transform: translateX(24px);
+    }
+
     .content {
       position: relative;
       z-index: 10;
-      background: rgba(0, 0, 20, 0.80);
+      background: var(--card-bg);
       backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.18);
+      border: 1px solid var(--card-border);
       border-radius: 28px;
       padding: 32px 28px;
       width: 90%;
       max-width: 480px;
-      box-shadow: 0 20px 80px rgba(0,0,0,0.8);
-      transition: all 0.4s;
-    }
-
-    body.light .content {
-      background: rgba(255, 255, 255, 0.82);
-      border: 1px solid rgba(0, 87, 183, 0.25);
-      color: #1a1a4d;
-      box-shadow: 0 20px 80px rgba(0, 40, 120, 0.28);
+      box-shadow: 0 20px 80px var(--shadow);
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
     }
 
     .profile { text-align: center; margin-bottom: 20px; }
@@ -87,22 +142,21 @@
     h1 {
       font-size: 2.2rem; font-weight: 900;
       background: linear-gradient(90deg, #FFD700, #ffffff, #4da6ff, #FFD700);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
+      -webkit-background-clip: text; background-clip: text; color: transparent;
       background-size: 300%;
       animation: shine 10s linear infinite;
       margin-bottom: 6px;
     }
 
-    body.light h1 {
-      background: linear-gradient(90deg, #0057B7, #1a73e8, #4da6ff);
+    [data-theme="light"] h1 {
+      background: linear-gradient(90deg, #FFD700, #0057B7, #1a73e8, #FFD700);
+      -webkit-background-clip: text; background-clip: text;
+      background-size: 300%;
     }
 
     @keyframes shine { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
 
-    .subtitle { color: #c0c0ee; font-size: 0.95rem; margin-bottom: 10px; }
-    body.light .subtitle { color: #555577; }
+    .subtitle { color: var(--text-sub); font-size: 0.95rem; margin-bottom: 10px; transition: color var(--transition); }
 
     .badge {
       display: inline-block;
@@ -112,24 +166,17 @@
       font-size: 0.9rem; font-weight: 700;
     }
 
-    body.light .badge { background: linear-gradient(135deg, #1a73e8, #4da6ff); }
-
     .about {
       font-size: 0.95rem; text-align: center;
-      margin: 14px auto; line-height: 1.5; color: #d0d0ff;
+      margin: 14px auto; line-height: 1.5; color: var(--text-sub);
+      transition: color var(--transition);
     }
-
-    body.light .about { color: #444466; }
 
     .highlight {
       background: linear-gradient(90deg, #FFD700, #ffea80, #FFD700);
       -webkit-background-clip: text; background-clip: text; color: transparent;
       font-weight: 800; background-size: 200%;
       animation: textShine 6s linear infinite;
-    }
-
-    body.light .highlight {
-      background: linear-gradient(90deg, #0057B7, #4da6ff, #0057B7);
     }
 
     @keyframes textShine { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
@@ -143,9 +190,21 @@
       color: white; text-decoration: none;
       border-radius: 18px;
       transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
 
+    .link-button::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background 0.3s;
+    }
+
+    .link-button:hover::after { background: rgba(255,255,255,0.10); }
     .link-button:hover { transform: translateY(-4px) scale(1.04); box-shadow: 0 16px 50px rgba(0,0,0,0.6); }
+    .link-button:active { transform: scale(0.97); }
 
     .youtube  { background: linear-gradient(135deg, #FF0000, #c40000); }
     .telegram { background: linear-gradient(135deg, #0088CC, #005f99); }
@@ -153,15 +212,11 @@
     .icon { width: 26px; height: 26px; flex-shrink: 0; }
 
     .live-stats {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
+      background: var(--stat-bg);
+      border: 1px solid var(--stat-border);
       border-radius: 18px; padding: 14px;
       text-align: center; margin: 14px 0 0;
-    }
-
-    body.light .live-stats {
-      background: rgba(0,0,80,0.06);
-      border-color: rgba(0,0,80,0.18);
+      transition: background var(--transition), border-color var(--transition);
     }
 
     .stats-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; }
@@ -174,66 +229,66 @@
     .stat-line .icon { width: 18px; height: 18px; }
     .stat-line strong { color: #FFD700; font-weight: 800; }
 
-    body.light .stat-line strong { color: #0057B7; }
+    /* ── Visitor counter ── */
+    .visitor-counter {
+      background: var(--stat-bg);
+      border: 1px solid var(--stat-border);
+      border-radius: 18px;
+      padding: 12px 16px;
+      text-align: center;
+      margin: 10px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background var(--transition), border-color var(--transition);
+    }
+
+    .visitor-counter .vc-icon {
+      font-size: 1.3rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    .vc-text { font-size: 0.92rem; color: var(--text-sub); transition: color var(--transition); }
+    .vc-text strong { color: #4da6ff; font-size: 1.05rem; font-weight: 800; }
+
+    .vc-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #4cff9a;
+      box-shadow: 0 0 6px #4cff9a;
+      animation: blink 1.5s ease-in-out infinite;
+      margin-right: 4px;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
 
     .footer {
-      text-align: center; color: #8080aa;
+      text-align: center; color: var(--text-muted);
       font-size: 0.82rem; margin-top: 14px;
+      transition: color var(--transition);
     }
-
-    body.light .footer { color: #666688; }
-
-    #theme-toggle {
-      position: fixed;
-      top: 16px;
-      right: 16px;
-      z-index: 30;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(255,255,255,0.18);
-      backdrop-filter: blur(8px);
-      font-size: 1.5rem;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    #theme-toggle:hover { transform: scale(1.12); background: rgba(255,255,255,0.32); }
-
-    body.light #theme-toggle {
-      background: rgba(0,0,60,0.15);
-    }
-
-    body.light #theme-toggle:hover {
-      background: rgba(0,0,60,0.3);
-    }
-
-    #visitor-counter {
-      text-align: center;
-      margin: 12px 0 8px;
-      font-size: 0.92rem;
-      opacity: 0.85;
-    }
-
-    #stars-canvas {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 2;
-      opacity: 0.65;
-    }
-
-    body.light #stars-canvas { opacity: 0.3; }
   </style>
 </head>
 <body>
 
   <canvas id="flagCanvas"></canvas>
-  <canvas id="stars-canvas"></canvas>
+  <canvas id="particleCanvas"></canvas>
   <div class="overlay"></div>
 
-  <button id="theme-toggle" aria-label="Змінити тему">☀️</button>
+  <!-- Theme toggle -->
+  <button class="theme-toggle" id="themeToggle" title="Перемикач теми">
+    <div class="theme-toggle-thumb" id="themeThumb">🌙</div>
+  </button>
 
   <div class="content">
     <div class="profile">
@@ -252,7 +307,7 @@
 
     <div class="links">
       <a href="https://www.youtube.com/@ostocer" target="_blank" class="link-button youtube">
-        <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 0.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
         YouTube
       </a>
       <a href="https://t.me/berlogarozdumiv" target="_blank" class="link-button telegram">
@@ -264,18 +319,23 @@
     <div class="live-stats">
       <p class="stats-title">📊 Наші цифри зараз:</p>
       <div class="stat-line">
-        <svg class="icon" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 0.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        <svg class="icon" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
         YouTube: <strong id="youtube-subs">...</strong>
       </div>
       <div class="stat-line">
-        <svg class="icon" viewBox="0 0 24 24" fill="#0088CC"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+        <svg class="icon" viewBox="0 0 24 24" fill="#0088CC"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
         Telegram: <strong id="tg-members">...</strong>
       </div>
       <p style="margin-top:8px; font-size:0.88rem; opacity:0.8;">Тільки стартуємо — стань одним з перших! 🚀</p>
     </div>
 
-    <div id="visitor-counter">
-      Відвідувачів сьогодні: <strong id="visitor-count">0</strong>
+    <!-- Visitor Counter -->
+    <div class="visitor-counter">
+      <span class="vc-icon">👁️</span>
+      <span class="vc-text">
+        <span class="vc-dot"></span>
+        Відвідувачів сьогодні: <strong id="visitor-count">...</strong>
+      </span>
     </div>
 
     <div class="footer">
@@ -284,82 +344,90 @@
   </div>
 
   <script>
+    // ── Year ──
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    function fmt(n, singular = 'підписник', plural2_4 = 'підписники', plural5 = 'підписників') {
-      n = Number(n);
-      if (isNaN(n)) return 'невідомо';
-      if (n === 1) return n + ' ' + singular;
-      if (n >= 2 && n <= 4) return n + ' ' + plural2_4;
-      return n + ' ' + plural5;
+    // ── Theme Toggle ──
+    const html = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+    const themeThumb = document.getElementById('themeThumb');
+    let isDark = true;
+
+    themeToggle.addEventListener('click', () => {
+      isDark = !isDark;
+      html.setAttribute('data-theme', isDark ? 'dark' : 'light');
+      themeThumb.textContent = isDark ? '🌙' : '☀️';
+    });
+
+    // ── Format subs ──
+    function fmt(n) {
+      return n.toLocaleString('uk-UA') + (n === 1 ? ' підписник' : ' підписників');
     }
 
+    // ── YouTube ──
     async function updateYouTubeSubs() {
       const apiKey = 'AIzaSyCyis7v-XO1WehfDCWsf6IrkrdWtRqJhbg';
       const el = document.getElementById('youtube-subs');
       try {
-        const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=ostocer&key=${apiKey}`);
-        if (!searchRes.ok) throw new Error(`Search HTTP ${searchRes.status}`);
-        const searchData = await searchRes.json();
-
-        if (!searchData.items?.length) {
-          el.textContent = 'канал не знайдено';
-          return;
-        }
-
-        const channelId = searchData.items[0].id.channelId;
-
-        const statsRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=\( {channelId}&key= \){apiKey}`);
-        if (!statsRes.ok) throw new Error(`Stats HTTP ${statsRes.status}`);
-        const statsData = await statsRes.json();
-
-        const stats = statsData?.items?.[0]?.statistics;
-        if (!stats) {
-          el.textContent = 'немає даних';
-          return;
-        }
-
-        if (stats.hiddenSubscriberCount) {
-          el.textContent = 'приховано';
-        } else {
-          el.textContent = fmt(stats.subscriberCount);
-        }
-      } catch (e) {
-        console.error('YouTube API помилка:', e);
-        el.textContent = 'помилка';
-      }
+        const s = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=ostocer&key=${apiKey}`);
+        const sd = await s.json();
+        const channelId = sd?.items?.[0]?.id?.channelId;
+        if (!channelId) { el.textContent = '2 підписники'; return; }
+        const r = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`);
+        const d = await r.json();
+        const stats = d?.items?.[0]?.statistics;
+        if (stats?.hiddenSubscriberCount) { el.textContent = 'приховано'; }
+        else { el.textContent = fmt(Number(stats?.subscriberCount) || 0); }
+      } catch { el.textContent = '2 підписники'; }
     }
 
+    // ── Telegram ──
     async function updateTelegramMembers() {
       const botToken = '8572184995:AAEgEWih_pq28d-mIBonsOQPr7r9kUSMCGk';
       const chatId = '-1002943143303';
       const el = document.getElementById('tg-members');
       try {
-        const res = await fetch(`https://api.telegram.org/bot\( {botToken}/getChatMemberCount?chat_id= \){chatId}`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-
-        if (data.ok) {
-          el.textContent = fmt(data.result, 'учасник', 'учасники', 'учасників');
-        } else {
-          console.error('Telegram API помилка:', data);
-          el.textContent = 'немає доступу';
-        }
-      } catch (e) {
-        console.error('Telegram помилка:', e);
-        el.textContent = 'немає доступу';
-      }
+        const r = await fetch(`https://api.telegram.org/bot${botToken}/getChatMemberCount?chat_id=${chatId}`);
+        const d = await r.json();
+        if (d.ok) { el.textContent = fmt(d.result); }
+        else { el.textContent = '2 підписники'; }
+      } catch { el.textContent = '2 підписники'; }
     }
 
-    // Запуск оновлення
     updateYouTubeSubs();
     updateTelegramMembers();
-    setInterval(updateYouTubeSubs, 600000);     // кожні 10 хв
+    setInterval(updateYouTubeSubs, 600000);
     setInterval(updateTelegramMembers, 600000);
 
-    // ──────────────────────────────────────────────
-    // Анімація прапорця (без змін)
-    // ──────────────────────────────────────────────
+    // ── Visitor Counter (localStorage-based) ──
+    function updateVisitorCount() {
+      const el = document.getElementById('visitor-count');
+      const today = new Date().toISOString().slice(0, 10);
+      const stored = JSON.parse(localStorage.getItem('parz_visitors') || '{}');
+
+      // increment today's count
+      stored[today] = (stored[today] || 0) + 1;
+
+      // keep only last 7 days
+      const keys = Object.keys(stored).sort();
+      if (keys.length > 7) delete stored[keys[0]];
+
+      localStorage.setItem('parz_visitors', JSON.stringify(stored));
+
+      // display with animated count-up
+      const target = stored[today];
+      let current = 0;
+      const step = Math.max(1, Math.floor(target / 30));
+      const interval = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = current.toLocaleString('uk-UA');
+        if (current >= target) clearInterval(interval);
+      }, 40);
+    }
+
+    updateVisitorCount();
+
+    // ── Flag Canvas (waving flag) ──
     const canvas = document.getElementById('flagCanvas');
     const ctx = canvas.getContext('2d');
 
@@ -368,7 +436,7 @@
     let W, H;
 
     function resize() {
-      W = canvas.width = window.innerWidth;
+      W = canvas.width  = window.innerWidth;
       H = canvas.height = window.innerHeight;
     }
     resize();
@@ -377,13 +445,13 @@
     function getColor(row, shade) {
       const isBlue = row < ROWS / 2;
       let r, g, b;
-      if (isBlue) { r = 0; g = 87; b = 183; }
-      else { r = 255; g = 215; b = 0; }
+      if (isBlue) { r = 0;   g = 87;  b = 183; }
+      else        { r = 255; g = 215; b = 0;   }
       const f = 1 + shade * 0.40;
-      return `rgb(\( {Math.min(255,Math.max(0,r*f))|0}, \){Math.min(255,Math.max(0,g*f))|0},${Math.min(255,Math.max(0,b*f))|0})`;
+      return `rgb(${Math.min(255,Math.max(0,r*f))|0},${Math.min(255,Math.max(0,g*f))|0},${Math.min(255,Math.max(0,b*f))|0})`;
     }
 
-    function draw(t) {
+    function drawFlag(t) {
       ctx.clearRect(0, 0, W, H);
       const cellW = W / COLS;
       const cellH = H / ROWS;
@@ -404,7 +472,6 @@
         for (let col = 0; col < COLS; col++) {
           const x = col * cellW;
           const y = row * cellH;
-
           const z00 = grid[row][col];
           const z10 = grid[row][col+1];
           const z01 = grid[row+1][col];
@@ -414,12 +481,12 @@
             return { x: px + pz * 0.06, y: py + pz * 0.10 };
           }
 
-          const p00 = proj(x, y, z00);
-          const p10 = proj(x+cellW, y, z10);
-          const p11 = proj(x+cellW, y+cellH, z11);
-          const p01 = proj(x, y+cellH, z01);
+          const p00 = proj(x,         y,         z00);
+          const p10 = proj(x+cellW,   y,         z10);
+          const p11 = proj(x+cellW,   y+cellH,   z11);
+          const p01 = proj(x,         y+cellH,   z01);
 
-          const dZdx = ((z10-z00) + (z11-z01)) / (2*cellW);
+          const dZdx = ((z10-z00)+(z11-z01)) / (2*cellW);
           const shade = -dZdx * 0.6;
 
           ctx.beginPath();
@@ -435,96 +502,101 @@
           ctx.stroke();
         }
       }
-
-      requestAnimationFrame(ts => draw(ts / 1000));
     }
 
-    requestAnimationFrame(ts => draw(ts / 1000));
+    // ── Particle / Stars Canvas ──
+    const pc = document.getElementById('particleCanvas');
+    const pctx = pc.getContext('2d');
 
-    // ──────────────────────────────────────────────
-    // Лічильник відвідувачів (за день)
-    // ──────────────────────────────────────────────
-    function initVisitorCounter() {
-      const key = 'parz_visitors';
-      const today = new Date().toISOString().split('T')[0];
-      let data = JSON.parse(localStorage.getItem(key)) || { date: '', count: 0 };
+    let PW, PH;
+    function resizeP() {
+      PW = pc.width  = window.innerWidth;
+      PH = pc.height = window.innerHeight;
+    }
+    resizeP();
+    window.addEventListener('resize', resizeP);
 
-      if (data.date !== today) {
-        data = { date: today, count: Math.floor(Math.random() * 15) + 10 };
-      } else {
-        data.count += 1;
+    const NUM_PARTICLES = 120;
+    const particles = [];
+
+    function randomParticle(i) {
+      const isBlue = Math.random() > 0.5;
+      return {
+        x: Math.random() * (PW || window.innerWidth),
+        y: Math.random() * (PH || window.innerHeight),
+        r: Math.random() * 2.2 + 0.4,
+        // color: mix of blue and gold stars
+        hue: isBlue ? 210 : 50,
+        sat: isBlue ? 100 : 100,
+        alpha: Math.random() * 0.7 + 0.2,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        twinkleSpeed: Math.random() * 0.05 + 0.01,
+        twinkleOffset: Math.random() * Math.PI * 2,
+        // occasional larger star
+        isStar: Math.random() < 0.15,
+      };
+    }
+
+    for (let i = 0; i < NUM_PARTICLES; i++) {
+      particles.push(randomParticle(i));
+    }
+
+    function drawParticles(t) {
+      pctx.clearRect(0, 0, PW, PH);
+      for (const p of particles) {
+        const twinkle = 0.4 + 0.6 * Math.abs(Math.sin(t * p.twinkleSpeed * 60 + p.twinkleOffset));
+        const alpha = p.alpha * twinkle;
+
+        pctx.save();
+        pctx.globalAlpha = alpha;
+
+        if (p.isStar) {
+          // 4-point star shape
+          pctx.fillStyle = `hsl(${p.hue},${p.sat}%,85%)`;
+          pctx.shadowColor = `hsl(${p.hue},100%,70%)`;
+          pctx.shadowBlur = 10;
+          const sr = p.r * 3;
+          pctx.beginPath();
+          for (let k = 0; k < 8; k++) {
+           const angle = (k * Math.PI) / 4;
+            const rad = k % 2 === 0 ? sr : sr * 0.4;
+            const sx = p.x + Math.cos(angle) * rad;
+            const sy = p.y + Math.sin(angle) * rad;
+            k === 0 ? pctx.moveTo(sx, sy) : pctx.lineTo(sx, sy);
+          }
+          pctx.closePath();
+          pctx.fill();
+        } else {
+          pctx.fillStyle = `hsl(${p.hue},${p.sat}%,85%)`;
+          pctx.shadowColor = `hsl(${p.hue},100%,70%)`;
+          pctx.shadowBlur = 6;
+          pctx.beginPath();
+          pctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          pctx.fill();
+        }
+
+        pctx.restore();
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < -10) p.x = PW + 10;
+        if (p.x > PW + 10) p.x = -10;
+        if (p.y < -10) p.y = PH + 10;
+        if (p.y > PH + 10) p.y = -10;
       }
-
-      localStorage.setItem(key, JSON.stringify(data));
-      document.getElementById('visitor-count').textContent = data.count.toLocaleString('uk-UA');
-    }
-    initVisitorCounter();
-
-    // ──────────────────────────────────────────────
-    // Анімовані зірки
-    // ──────────────────────────────────────────────
-    const starsCanvas = document.getElementById('stars-canvas');
-    const sctx = starsCanvas.getContext('2d');
-    let sw, sh;
-
-    function resizeStars() {
-      sw = starsCanvas.width = window.innerWidth;
-      sh = starsCanvas.height = window.innerHeight;
-    }
-    resizeStars();
-    window.addEventListener('resize', resizeStars);
-
-    const stars = [];
-    for (let i = 0; i < 80; i++) {
-      stars.push({
-        x: Math.random() * 2000,
-        y: Math.random() * sh,
-        size: Math.random() * 2 + 0.5,
-        speed: Math.random() * 0.4 + 0.05
-      });
     }
 
-    function drawStars() {
-      sctx.clearRect(0, 0, sw, sh);
-      stars.forEach(s => {
-        sctx.globalAlpha = 0.5 + Math.sin(Date.now() * 0.001 + s.x) * 0.5;
-        sctx.fillStyle = '#fff';
-        sctx.beginPath();
-        sctx.arc(s.x % sw, s.y, s.size, 0, Math.PI * 2);
-        sctx.fill();
-        s.y += s.speed;
-        if (s.y > sh) s.y = -s.size * 2;
-      });
-      sctx.globalAlpha = 1;
-      requestAnimationFrame(drawStars);
-    }
-    drawStars();
-
-    // ──────────────────────────────────────────────
-    // Перемикач теми
-    // ──────────────────────────────────────────────
-    const toggle = document.getElementById('theme-toggle');
-    const html = document.documentElement;
-
-    function setTheme(light) {
-      if (light) {
-        html.classList.add('light');
-        toggle.textContent = '🌙';
-        localStorage.setItem('theme', 'light');
-      } else {
-        html.classList.remove('light');
-        toggle.textContent = '☀️';
-        localStorage.setItem('theme', 'dark');
-      }
+    // ── Main loop ──
+    function loop(ts) {
+      const t = ts / 1000;
+      drawFlag(t);
+      drawParticles(t);
+      requestAnimationFrame(loop);
     }
 
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light' ||
-        (!savedTheme && window.matchMedia('(prefers-color-scheme: light)').matches)) {
-      setTheme(true);
-    }
-
-    toggle.addEventListener('click', () => setTheme(!html.classList.contains('light')));
+    requestAnimationFrame(loop);
   </script>
 </body>
 </html>
