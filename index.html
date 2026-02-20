@@ -5,280 +5,102 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Parzivalled — Соціальні мережі</title>
   <style>
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      min-height: 100vh;
-      color: #f0f0ff;
-      background: #000814;
-      overflow-x: hidden;
-      perspective: 1200px;
-      perspective-origin: 50% 50%;
-    }
-
-    /* 3D-прапор з текстурою тканини */
-    .flag-wrapper {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transform-style: preserve-3d;
-      pointer-events: none;
-      z-index: -2;
-    }
-
-    .flag {
-      width: 90vmin;
-      height: 60vmin;
-      max-width: 800px;
-      max-height: 533px;
-      position: relative;
-      transform-style: preserve-3d;
-      transform: rotateX(8deg) rotateY(12deg) translateZ(0);
-      transition: transform 0.18s ease-out;
-      animation: gentleSway 18s ease-in-out infinite alternate;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 
-        0 20px 80px rgba(0,0,0,0.8),
-        inset 0 0 100px rgba(255,215,0,0.12),
-        inset 0 0 160px rgba(0,87,183,0.10);
-    }
-
-    .flag::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to bottom, #0057B7 50%, #FFD700 50%);
-      background-size: 100% 200%;
-      z-index: 1;
-      mix-blend-mode: multiply;
-      opacity: 0.92;
-    }
-
-    /* Текстура тканини (вбудована SVG) */
-    .flag::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.6'/%3E%3C/svg%3E");
-      background-size: 300% 300%;
-      animation: fabricMove 40s linear infinite;
-      mix-blend-mode: overlay;
-      opacity: 0.45;
-      pointer-events: none;
-      z-index: 2;
-    }
-
-    @keyframes fabricMove {
-      0%   { background-position: 0% 0%; }
-      100% { background-position: 100% 100%; }
-    }
-
-    @keyframes gentleSway {
-      0%   { transform: rotateX(8deg) rotateY(12deg) translateZ(0); }
-      100% { transform: rotateX(12deg) rotateY(-12deg) translateZ(30px); }
-    }
-
-    /* Контейнер контенту */
-    .content {
-      position: relative;
-      z-index: 1;
-      background: rgba(3, 8, 30, 0.82);
-      backdrop-filter: blur(18px);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 28px;
-      padding: 32px 20px;
-      width: 90%;
-      max-width: 540px;
-      margin: 20px auto;
-      box-shadow: 0 12px 50px rgba(0,0,0,0.75);
-      transform-style: preserve-3d;
-      transform: translateZ(60px);
-    }
-
-    /* решта стилів без змін */
-    .profile { text-align: center; margin-bottom: 32px; }
-    .profile-image {
-      width: 120px;
-      height: 120px;
-      margin: 0 auto 20px;
-      border-radius: 50%;
-      border: 5px solid transparent;
-      background: linear-gradient(white, white) padding-box,
-                  linear-gradient(135deg, #0057B7, #FFD700) border-box;
-      overflow: hidden;
-      box-shadow: 0 8px 40px rgba(0,87,183,0.6);
-    }
-
-    h1 {
-      font-size: 2.8rem;
-      font-weight: 900;
-      background: linear-gradient(90deg, #FFD700, #ffffff, #1a73e8, #FFD700);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      background-size: 300%;
-      animation: shine 10s linear infinite;
-      margin-bottom: 8px;
-    }
-
-    @keyframes shine {
-      0%   { background-position: 0% 50%; }
-      100% { background-position: 300% 50%; }
-    }
-
-    .about {
-      font-size: 1.05rem;
+    /* весь попередній стиль без змін — встав сюди свій останній CSS */
+    /* ... (скорочую, щоб не дублювати) ... */
+    .live-stats {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 24px;
+      padding: 24px;
       text-align: center;
-      margin: 0 auto 32px;
-      max-width: 92%;
-      line-height: 1.6;
+      margin: 40px 0;
     }
-
-    .highlight {
-      background: linear-gradient(90deg, #FFD700, #ffea80, #FFD700);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      font-weight: 800;
-      background-size: 200%;
-      animation: textShine 5s linear infinite;
-      text-shadow: 0 0 15px rgba(255,215,0,0.7);
-    }
-
-    @keyframes textShine {
-      0%   { background-position: 0% 50%; }
-      100% { background-position: 200% 50%; }
-    }
-
-    .links {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      margin: 32px 0;
-    }
-
-    .link-button {
+    .stat-line {
+      font-size: 1.15rem;
+      margin: 12px 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 14px;
-      padding: 18px 24px;
-      font-size: 1.18rem;
-      font-weight: 700;
-      color: white;
-      text-decoration: none;
-      border-radius: 20px;
-      transition: all 0.3s ease;
-      min-height: 58px;
+      gap: 12px;
     }
-
-    .link-button:hover {
-      transform: translateY(-5px) scale(1.04);
-      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-    }
-
-    .youtube { background: linear-gradient(135deg, #FF0000, #d00000); }
-    .telegram { background: linear-gradient(135deg, #0088CC, #006699); }
-
-    .icon {
-      width: 30px;
-      height: 30px;
-      transition: transform 0.4s;
-    }
-
-    .link-button:hover .icon {
-      transform: scale(1.25) rotate(15deg);
-    }
-
-    .live-stats, .footer { /* стилі як раніше */ }
+    .loading { opacity: 0.7; font-style: italic; }
   </style>
 </head>
 <body>
 
-  <div class="flag-wrapper">
-    <div class="flag" id="flag3d"></div>
+  <!-- весь попередній HTML без змін -->
+
+  <div class="live-stats">
+    <p style="font-size:1.3rem; font-weight:700; margin-bottom:20px;">Наші цифри зараз:</p>
+    <div class="stat-line">
+      <svg class="icon" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 0.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+      <span>YouTube: <strong id="youtube-count" class="loading">завантаження...</strong></span>
+    </div>
+    <div class="stat-line">
+      <svg class="icon" viewBox="0 0 24 24" fill="#0088CC"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+      <span>Telegram: <strong id="telegram-count" class="loading">завантаження...</strong></span>
+    </div>
+    <p style="margin-top:24px; font-size:1.05rem; opacity:0.85;">
+      Тільки стартуємо — стань одним з перших! 🚀
+    </p>
   </div>
 
-  <div class="content">
-    <!-- весь контент: профіль, about, посилання, статистика, футер -->
-    <div class="profile">
-      <div class="profile-image">
-        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%230057B7' width='100' height='50'/%3E%3Crect fill='%23FFD700' y='50' width='100' height='50'/%3E%3Ctext x='50' y='60' font-size='45' text-anchor='middle' fill='white' font-weight='bold' font-family='Arial'%3EP%3C/text%3E%3C/svg%3E" alt="Parzivalled" loading="lazy">
-      </div>
-      <h1>Parzivalled</h1>
-      <p class="subtitle">Контент-креатор • Стрімер</p>
-      <span class="badge">💙💛 Активний</span>
-    </div>
-
-    <div class="about">
-      <span class="highlight">Люблю грати в CS2, дивитися фільми та кіберспортивні матчі.</span><br>
-      Якщо ти теж фанат CS, кіно та esports — <strong>приєднуйся</strong>, буде цікаво!
-    </div>
-
-    <div class="links">
-      <a href="https://www.youtube.com/@ostocer" target="_blank" class="link-button youtube">
-        <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 0.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-        <span>YouTube</span>
-      </a>
-
-      <a href="https://t.me/berlogarozdumiv" target="_blank" class="link-button telegram">
-        <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-        <span>Telegram</span>
-      </a>
-    </div>
-
-    <div class="live-stats">
-      <p style="font-size:1.25rem; font-weight:700; margin-bottom:16px;">Наші цифри зараз:</p>
-      <div class="stat-line">
-        <svg class="icon" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 0.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-        <span>YouTube: <strong>4 підписники</strong></span>
-      </div>
-      <div class="stat-line">
-        <svg class="icon" viewBox="0 0 24 24" fill="#0088CC"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-        <span>Telegram: <strong>4 підписники</strong></span>
-      </div>
-      <p style="margin-top:20px; font-size:0.98rem; opacity:0.85;">
-        Тільки стартуємо — стань одним з перших! 🚀
-      </p>
-    </div>
-
-    <div class="footer">
-      <p>© <span id="year"></span> Parzivalled • Зроблено з 💙💛</p>
-    </div>
-
-  </div>
+  <!-- решта HTML -->
 
   <script>
-    const flag = document.getElementById('flag3d');
-    const content = document.querySelector('.content');
+    // Функція для оновлення підписників YouTube
+    async function updateYouTubeSubs() {
+      const subsEl = document.getElementById('youtube-count');
+      try {
+        // Заміни на свої дані!
+        const apiKey = 'YOUR_YOUTUBE_API_KEY';
+        const channelId = 'YOUR_CHANNEL_ID'; // наприклад UCxxxxxxxxxxxxxxxxxxxxxx
 
-    // Реакція на мишу (ПК)
-    document.addEventListener('mousemove', (e) => {
-      const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
-      const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`);
+        const data = await res.json();
 
-      flag.style.transform = `rotateY(${xAxis}deg) rotateX(${-yAxis}deg) translateZ(0)`;
-      content.style.transform = `translateZ(60px) rotateY(${xAxis*0.4}deg) rotateX(${-yAxis*0.4}deg)`;
-    });
-
-    // Реакція на нахил телефону
-    if (window.DeviceOrientationEvent) {
-      window.addEventListener('deviceorientation', (e) => {
-        const tiltX = e.beta ? e.beta / 3 : 0;
-        const tiltY = e.gamma ? e.gamma / 3 : 0;
-
-        flag.style.transform = `rotateY(${tiltY}deg) rotateX(${tiltX}deg) translateZ(0)`;
-        content.style.transform = `translateZ(60px) rotateY(${tiltY*0.5}deg) rotateX(${tiltX*0.5}deg)`;
-      });
+        if (data.items && data.items[0]) {
+          const count = data.items[0].statistics.subscriberCount || '0';
+          subsEl.textContent = count.toLocaleString('uk-UA') + ' підписників';
+        } else {
+          subsEl.textContent = 'немає даних';
+        }
+      } catch (err) {
+        console.error(err);
+        subsEl.textContent = 'помилка';
+      }
     }
+
+    // Функція для оновлення підписників Telegram
+    async function updateTelegramMembers() {
+      const membersEl = document.getElementById('telegram-count');
+      try {
+        // Заміни на свої дані!
+        const botToken = 'YOUR_TELEGRAM_BOT_TOKEN';
+        const chatId = 'YOUR_CHAT_ID'; // наприклад -1002943143303
+
+        const res = await fetch(`https://api.telegram.org/bot${botToken}/getChatMemberCount?chat_id=${chatId}`);
+        const data = await res.json();
+
+        if (data.ok) {
+          const count = data.result;
+          membersEl.textContent = count.toLocaleString('uk-UA') + ' підписників';
+        } else {
+          membersEl.textContent = 'немає даних';
+        }
+      } catch (err) {
+        console.error(err);
+        membersEl.textContent = 'помилка';
+      }
+    }
+
+    // Запускаємо при завантаженні сторінки
+    updateYouTubeSubs();
+    updateTelegramMembers();
+
+    // Оновлення кожні 30 хвилин (1800000 мс)
+    setInterval(updateYouTubeSubs, 1800000);
+    setInterval(updateTelegramMembers, 1800000);
 
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
