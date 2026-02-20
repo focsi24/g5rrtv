@@ -13,59 +13,81 @@
 
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #0a0e27;
-      color: #e0e0ff;
       min-height: 100vh;
       padding: 16px 12px;
       display: flex;
       flex-direction: column;
       align-items: center;
       line-height: 1.5;
+      color: #f0f0ff;
+      background: #0a0e27;
+      overflow-x: hidden;
     }
 
-    .bg {
+    /* Український прапор як фон + переливання */
+    .bg-flag {
       position: fixed;
       inset: 0;
       z-index: -2;
+      background: linear-gradient(to bottom, #0057B7 50%, #FFD700 50%);
+      background-size: 100% 200%;
+      animation: flagWave 18s ease-in-out infinite;
+      opacity: 0.18;
+    }
+
+    @keyframes flagWave {
+      0%, 100% { background-position: 0% 0%; }
+      50%      { background-position: 0% 100%; }
+    }
+
+    /* Легке мерехтіння поверх прапора */
+    .bg-shimmer {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(
+        135deg,
+        transparent 0%,
+        rgba(255, 215, 0, 0.08) 20%,
+        transparent 40%,
+        rgba(0, 87, 183, 0.06) 60%,
+        transparent 80%
+      );
+      background-size: 300% 300%;
+      animation: shimmerMove 25s linear infinite;
       pointer-events: none;
     }
 
-    .bg-gradient {
-      position: absolute;
-      inset: -50%;
-      background: linear-gradient(45deg, #0057B7, #1a73e8, #FFD700, #ffa500);
-      animation: gradientShift 28s ease infinite;
-      opacity: 0.09;
-    }
-
-    @keyframes gradientShift {
-      0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
-      50%      { transform: translate(-50%, -50%) rotate(180deg); }
+    @keyframes shimmerMove {
+      0%   { background-position: 0% 0%; }
+      100% { background-position: 300% 300%; }
     }
 
     .container {
-      background: rgba(15, 20, 50, 0.48);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.11);
+      background: rgba(10, 15, 45, 0.65);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.13);
       border-radius: 28px;
       padding: 32px 20px;
       width: 100%;
-      max-width: 520px;
+      max-width: 540px;
       margin: 20px auto;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.55);
-      animation: fadeInContainer 1.2s ease-out;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.6);
+      animation: appear 1.3s ease-out;
+      position: relative;
+      z-index: 1;
     }
 
-    @keyframes fadeInContainer {
-      from { opacity: 0; transform: translateY(30px); }
-      to   { opacity: 1; transform: translateY(0); }
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(40px) scale(0.94); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     .profile {
       text-align: center;
       margin-bottom: 32px;
-      animation: fadeIn 1.4s ease-out 0.2s both;
+      animation: fadeInUp 1.4s ease-out 0.3s both;
     }
 
     .profile-image {
@@ -75,82 +97,87 @@
       border-radius: 50%;
       border: 5px solid transparent;
       background: linear-gradient(white, white) padding-box,
-                  linear-gradient(135deg, #0057B7, #FFD700) border-box;
+                  linear-gradient(135deg, #0057B7 0%, #FFD700 50%, #0057B7 100%) border-box;
       overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0, 87, 183, 0.45);
+      box-shadow: 0 8px 40px rgba(0, 87, 183, 0.5), 0 0 20px rgba(255, 215, 0, 0.3);
+      animation: pulseBorder 6s ease-in-out infinite;
     }
 
-    .profile-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    @keyframes pulseBorder {
+      0%, 100% { box-shadow: 0 8px 40px rgba(0, 87, 183, 0.5), 0 0 20px rgba(255, 215, 0, 0.3); }
+      50%      { box-shadow: 0 12px 60px rgba(0, 87, 183, 0.7), 0 0 35px rgba(255, 215, 0, 0.5); }
     }
 
     h1 {
-      font-size: 2.6rem;
+      font-size: 2.8rem;
       font-weight: 900;
-      letter-spacing: -1px;
-      background: linear-gradient(90deg, #FFD700, #1a73e8, #FFD700);
+      letter-spacing: -1.2px;
+      background: linear-gradient(90deg, #FFD700, #ffffff, #1a73e8, #FFD700);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
+      background-size: 300%;
+      animation: titleFlow 10s linear infinite;
       margin-bottom: 8px;
     }
 
+    @keyframes titleFlow {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 300% 50%; }
+    }
+
     .subtitle {
-      color: #a0a0ff;
-      font-size: 1.1rem;
+      color: #b0b0ff;
+      font-size: 1.15rem;
       margin-bottom: 12px;
     }
 
     .badge {
       display: inline-block;
-      padding: 6px 16px;
+      padding: 6px 18px;
       background: linear-gradient(135deg, #0057B7, #1a73e8);
       color: white;
       border-radius: 999px;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       font-weight: 700;
+      box-shadow: 0 4px 16px rgba(0, 87, 183, 0.5);
+      animation: badgePulse 3s ease-in-out infinite;
+    }
+
+    @keyframes badgePulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.06); }
     }
 
     .about {
-      font-size: 1rem;
+      font-size: 1.05rem;
       text-align: center;
       margin: 0 auto 32px;
-      max-width: 90%;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeInUp 1.2s ease-out 0.6s forwards;
+      max-width: 92%;
       line-height: 1.6;
-    }
-
-    @keyframes fadeInUp {
-      to {
-        opacity: 0.92;
-        transform: translateY(0);
-      }
+      animation: fadeInUp 1.5s ease-out 0.7s both;
     }
 
     .highlight {
-      background: linear-gradient(90deg, #FFD700, #ffaa00, #FFD700);
+      background: linear-gradient(90deg, #FFD700, #ffea80, #FFD700);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      font-weight: 700;
+      font-weight: 800;
       background-size: 200% 100%;
-      animation: shine 4s linear infinite;
-      text-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
-      padding: 0 4px;
+      animation: shineText 5s linear infinite;
+      text-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+      padding: 0 5px;
       border-radius: 6px;
-      transition: all 0.3s ease;
+      transition: all 0.35s ease;
     }
 
     .highlight:hover {
-      transform: scale(1.04);
-      text-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
+      text-shadow: 0 0 25px rgba(255, 215, 0, 1);
+      transform: scale(1.05);
     }
 
-    @keyframes shine {
+    @keyframes shineText {
       0%   { background-position: 0% 50%; }
       100% { background-position: 200% 50%; }
     }
@@ -168,48 +195,65 @@
       justify-content: center;
       gap: 14px;
       padding: 18px 24px;
-      font-size: 1.15rem;
+      font-size: 1.18rem;
       font-weight: 700;
       color: white;
       text-decoration: none;
       border-radius: 20px;
-      transition: all 0.25s ease;
-      border: 2px solid rgba(255,255,255,0.09);
-      min-height: 56px;
-      touch-action: manipulation;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 2px solid rgba(255,255,255,0.12);
+      min-height: 58px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .link-button:hover,
-    .link-button:focus-visible {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    .link-button::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s;
     }
 
-    .link-button:active {
-      transform: scale(0.98);
+    .link-button:hover::before {
+      opacity: 1;
     }
 
-    .youtube { background: linear-gradient(135deg, #FF0000, #b30000); }
-    .telegram { background: linear-gradient(135deg, #0088CC, #005f99); }
+    .link-button:hover {
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+    }
+
+    .youtube { background: linear-gradient(135deg, #FF0000, #d00000); }
+    .telegram { background: linear-gradient(135deg, #0088CC, #006699); }
 
     .icon {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       flex-shrink: 0;
+      transition: transform 0.4s ease;
+    }
+
+    .link-button:hover .icon {
+      transform: scale(1.2) rotate(10deg);
     }
 
     .live-stats {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.14);
       border-radius: 20px;
-      padding: 20px;
+      padding: 22px;
       text-align: center;
       margin: 32px 0;
-      animation: fadeIn 1.6s ease-out 0.9s both;
+      animation: fadeInUp 1.6s ease-out 1s both;
     }
 
     .stat-line {
-      font-size: 1.05rem;
+      font-size: 1.08rem;
       margin: 12px 0;
       display: flex;
       align-items: center;
@@ -224,12 +268,15 @@
 
     .footer {
       text-align: center;
-      color: #8888aa;
-      font-size: 0.9rem;
+      color: #a0a0cc;
+      font-size: 0.92rem;
       margin-top: 40px;
-      line-height: 1.6;
-      opacity: 0;
-      animation: fadeIn 2s ease-out 1.2s forwards;
+      animation: fadeIn 2.2s ease-out 1.4s forwards;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(25px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes fadeIn {
@@ -240,22 +287,17 @@
       body { padding: 12px 10px; }
       .container { padding: 28px 18px; border-radius: 24px; margin: 16px auto; }
       .profile-image { width: 110px; height: 110px; }
-      h1 { font-size: 2.2rem; }
-      .subtitle { font-size: 1rem; }
-      .about { font-size: 0.97rem; max-width: 94%; }
-      .link-button { font-size: 1.08rem; padding: 16px 22px; gap: 12px; }
+      h1 { font-size: 2.3rem; }
+      .about { font-size: 1rem; }
+      .link-button { font-size: 1.1rem; padding: 16px 22px; }
       .icon { width: 26px; height: 26px; }
-      .live-stats { padding: 18px; }
-      .stat-line { font-size: 1rem; }
-      .footer { font-size: 0.85rem; }
     }
 
     @media (min-width: 768px) {
-      .container { max-width: 620px; padding: 48px 40px; border-radius: 36px; }
-      h1 { font-size: 3.2rem; }
+      .container { max-width: 640px; padding: 48px 40px; border-radius: 36px; }
+      h1 { font-size: 3.4rem; }
       .profile-image { width: 160px; height: 160px; }
-      .link-button { font-size: 1.3rem; padding: 22px 32px; }
-      .about { font-size: 1.1rem; max-width: 80%; }
+      .link-button { font-size: 1.35rem; padding: 22px 32px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -265,9 +307,8 @@
 </head>
 <body>
 
-  <div class="bg">
-    <div class="bg-gradient"></div>
-  </div>
+  <div class="bg-flag"></div>
+  <div class="bg-shimmer"></div>
 
   <div class="container">
 
@@ -298,7 +339,7 @@
     </div>
 
     <div class="live-stats">
-      <p style="font-size:1.2rem; font-weight:700; margin-bottom:16px;">Наші цифри зараз:</p>
+      <p style="font-size:1.25rem; font-weight:700; margin-bottom:16px;">Наші цифри зараз:</p>
       <div class="stat-line">
         <svg class="icon" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 0.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
         <span>YouTube: <strong>4 підписники</strong></span>
@@ -307,7 +348,7 @@
         <svg class="icon" viewBox="0 0 24 24" fill="#0088CC"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
         <span>Telegram: <strong>4 підписники</strong></span>
       </div>
-      <p style="margin-top:20px; font-size:0.95rem; opacity:0.8;">
+      <p style="margin-top:20px; font-size:0.98rem; opacity:0.85;">
         Тільки стартуємо — стань одним з перших! 🚀
       </p>
     </div>
