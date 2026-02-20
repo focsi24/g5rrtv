@@ -14,11 +14,12 @@
     html, body {
       height: 100%;
       width: 100%;
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
       color: #f0f0ff;
       background: #000814;
       perspective: 1800px;
@@ -41,8 +42,8 @@
     }
 
     @keyframes flagWave {
-      0%, 100% { background-position: 0% 0%; transform: scale(1.02) rotateX(0deg) rotateY(0deg); }
-      50%      { background-position: 0% 100%; transform: scale(1.00) rotateX(2deg) rotateY(1deg); }
+      0%, 100% { background-position: 0% 0%; transform: scale(1.02); }
+      50%      { background-position: 0% 100%; transform: scale(1.00); }
     }
 
     /* Текстура тканини на весь екран */
@@ -67,7 +68,7 @@
       100% { background-position: 250% 250%, 160px 160px; }
     }
 
-    /* Легке 3D-майоріння та реакція на мишу/нахил */
+    /* 3D-реакція на мишу / нахил телефону */
     .ua-flag-wrapper {
       position: fixed;
       inset: 0;
@@ -85,7 +86,7 @@
       transition: transform 0.3s ease-out;
     }
 
-    /* Затемнення для читабельності тексту */
+    /* Затемнення для читабельності */
     body::after {
       content: '';
       position: fixed;
@@ -101,7 +102,6 @@
       z-index: 10;
       background: rgba(0, 0, 20, 0.82);
       backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255,255,255,0.15);
       border-radius: 32px;
       padding: 48px 28px;
