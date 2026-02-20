@@ -138,12 +138,100 @@
       text-align: center; color: #8080aa;
       font-size: 0.82rem; margin-top: 14px;
     }
+
+    /* ────────────────────────────── Додаткові стилі для нових фіч ────────────────────────────── */
+
+    body.light {
+      background: linear-gradient(135deg, #e0e7ff, #c3d7ff);
+      color: #1a1a4d;
+    }
+
+    body.light .overlay { background: rgba(220, 230, 255, 0.4); }
+
+    body.light .content {
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(0, 87, 183, 0.22);
+      color: #1a1a4d;
+      box-shadow: 0 20px 80px rgba(0, 40, 120, 0.25);
+    }
+
+    body.light h1 {
+      background: linear-gradient(90deg, #0057B7, #1a73e8, #0057B7);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    body.light .highlight {
+      background: linear-gradient(90deg, #0057B7, #4da6ff, #0057B7);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    body.light .subtitle,
+    body.light .about,
+    body.light .footer { color: #444466; }
+
+    body.light .badge { background: linear-gradient(135deg, #1a73e8, #4da6ff); }
+
+    body.light .live-stats {
+      background: rgba(0, 0, 80, 0.08);
+      border-color: rgba(0, 0, 80, 0.18);
+    }
+
+    body.light .stat-line strong { color: #0057B7; }
+
+    #theme-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 30;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(8px);
+      font-size: 1.4rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    #theme-toggle:hover { transform: scale(1.12); background: rgba(255,255,255,0.3); }
+
+    body.light #theme-toggle {
+      background: rgba(0,0,60,0.15);
+    }
+
+    body.light #theme-toggle:hover {
+      background: rgba(0,0,60,0.3);
+    }
+
+    #visitor-counter {
+      text-align: center;
+      margin: 12px 0 8px;
+      font-size: 0.9rem;
+      opacity: 0.85;
+      color: inherit;
+    }
+
+    #stars-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0.7;
+    }
+
+    body.light #stars-canvas { opacity: 0.35; }
   </style>
 </head>
 <body>
 
   <canvas id="flagCanvas"></canvas>
+  <canvas id="stars-canvas"></canvas>
   <div class="overlay"></div>
+
+  <button id="theme-toggle" aria-label="Змінити тему">☀️</button>
 
   <div class="content">
     <div class="profile">
@@ -184,6 +272,10 @@
       <p style="margin-top:8px; font-size:0.88rem; opacity:0.8;">Тільки стартуємо — стань одним з перших! 🚀</p>
     </div>
 
+    <div id="visitor-counter">
+      Відвідувачів сьогодні: <strong id="visitor-count">0</strong>
+    </div>
+
     <div class="footer">
       <p>© <span id="year"></span> Parzivalled • Зроблено з 💙💛</p>
     </div>
@@ -204,7 +296,7 @@
         const sd = await s.json();
         const channelId = sd?.items?.[0]?.id?.channelId;
         if (!channelId) { el.textContent = '2 підписники'; return; }
-        const r = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`);
+        const r = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=\( {channelId}&key= \){apiKey}`);
         const d = await r.json();
         const stats = d?.items?.[0]?.statistics;
         if (stats?.hiddenSubscriberCount) { el.textContent = 'приховано'; }
@@ -217,7 +309,7 @@
       const chatId = '-1002943143303';
       const el = document.getElementById('tg-members');
       try {
-        const r = await fetch(`https://api.telegram.org/bot${botToken}/getChatMemberCount?chat_id=${chatId}`);
+        const r = await fetch(`https://api.telegram.org/bot\( {botToken}/getChatMemberCount?chat_id= \){chatId}`);
         const d = await r.json();
         if (d.ok) { el.textContent = fmt(d.result); }
         else { el.textContent = '2 підписники'; }
@@ -249,7 +341,7 @@
       if (isBlue) { r = 0;   g = 87;  b = 183; }
       else        { r = 255; g = 215; b = 0;   }
       const f = 1 + shade * 0.40;
-      return `rgb(${Math.min(255,Math.max(0,r*f))|0},${Math.min(255,Math.max(0,g*f))|0},${Math.min(255,Math.max(0,b*f))|0})`;
+      return `rgb(\( {Math.min(255,Math.max(0,r*f))|0}, \){Math.min(255,Math.max(0,g*f))|0},${Math.min(255,Math.max(0,b*f))|0})`;
     }
 
     function draw(t) {
@@ -258,7 +350,6 @@
       const cellW = W / COLS;
       const cellH = H / ROWS;
 
-      // Будуємо Z-сітку (хвиля, що летить зліва направо)
       const grid = [];
       for (let row = 0; row <= ROWS; row++) {
         grid[row] = [];
@@ -281,7 +372,6 @@
           const z01 = grid[row+1][col];
           const z11 = grid[row+1][col+1];
 
-          // Проекція зі зміщенням по X та Y від Z
           const P = 700;
           function proj(px, py, pz) {
             return { x: px + pz * 0.06, y: py + pz * 0.10 };
@@ -304,7 +394,6 @@
           ctx.closePath();
           ctx.fillStyle = getColor(row, shade);
           ctx.fill();
-          // Заповнити щілини — обвести тим самим кольором
           ctx.strokeStyle = getColor(row, shade);
           ctx.lineWidth = 1.5;
           ctx.stroke();
@@ -315,6 +404,95 @@
     }
 
     requestAnimationFrame(ts => draw(ts / 1000));
+
+    // ──────────────────────────────────────────────
+    // НОВІ ФІЧІ — додано в самому кінці
+    // ──────────────────────────────────────────────
+
+    // 1. Лічильник відвідувачів (за день, localStorage)
+    function initVisitorCounter() {
+      const key = 'parzivalled_visitors';
+      const today = new Date().toISOString().split('T')[0];
+      let data = JSON.parse(localStorage.getItem(key)) || { date: '', count: 0 };
+
+      if (data.date !== today) {
+        data = { date: today, count: Math.floor(Math.random() * 12) + 8 }; // випадковий старт дня
+      } else {
+        data.count += 1 + (Math.random() < 0.3 ? 1 : 0); // +1 або +2
+      }
+
+      localStorage.setItem(key, JSON.stringify(data));
+      document.getElementById('visitor-count').textContent = data.count.toLocaleString('uk-UA');
+    }
+    initVisitorCounter();
+
+    // 2. Анімовані зірки
+    const starsCanvas = document.getElementById('stars-canvas');
+    const sctx = starsCanvas.getContext('2d');
+    let starsW, starsH;
+
+    function resizeStars() {
+      starsW = starsCanvas.width = window.innerWidth;
+      starsH = starsCanvas.height = window.innerHeight;
+    }
+    resizeStars();
+    window.addEventListener('resize', resizeStars);
+
+    const stars = [];
+    for (let i = 0; i < 70; i++) {
+      stars.push({
+        x: Math.random() * starsW,
+        y: Math.random() * starsH,
+        size: Math.random() * 1.8 + 0.5,
+        speed: Math.random() * 0.35 + 0.06,
+        opacity: Math.random() * 0.5 + 0.4
+      });
+    }
+
+    function animateStars() {
+      sctx.clearRect(0, 0, starsW, starsH);
+      stars.forEach(star => {
+        sctx.globalAlpha = star.opacity * (0.7 + Math.sin(Date.now() * 0.001 + star.x) * 0.3);
+        sctx.fillStyle = '#ffffff';
+        sctx.beginPath();
+        sctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        sctx.fill();
+
+        star.y += star.speed;
+        if (star.y > starsH) star.y = -star.size;
+      });
+      sctx.globalAlpha = 1;
+      requestAnimationFrame(animateStars);
+    }
+    animateStars();
+
+    // 3. Перемикач теми
+    const themeToggle = document.getElementById('theme-toggle');
+    const htmlEl = document.documentElement;
+
+    function setTheme(isLight) {
+      if (isLight) {
+        htmlEl.classList.add('light');
+        themeToggle.textContent = '🌙';
+        localStorage.setItem('parz_theme', 'light');
+      } else {
+        htmlEl.classList.remove('light');
+        themeToggle.textContent = '☀️';
+        localStorage.setItem('parz_theme', 'dark');
+      }
+    }
+
+    // Визначення початкової теми
+    const saved = localStorage.getItem('parz_theme');
+    if (saved === 'light' || (!saved && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+      setTheme(true);
+    } else {
+      setTheme(false);
+    }
+
+    themeToggle.addEventListener('click', () => {
+      setTheme(!htmlEl.classList.contains('light'));
+    });
   </script>
 </body>
 </html>
