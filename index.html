@@ -175,11 +175,11 @@
       <p class="stats-title">📊 Наші цифри зараз:</p>
       <div class="stat-line">
         <svg class="icon" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 0.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-        YouTube: <strong>4 підписники</strong>
+        YouTube: <strong id="youtube-subs">...</strong>
       </div>
       <div class="stat-line">
         <svg class="icon" viewBox="0 0 24 24" fill="#0088CC"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-        Telegram: <strong>4 підписники</strong>
+        Telegram: <strong id="tg-members">...</strong>
       </div>
       <p style="margin-top:8px; font-size:0.88rem; opacity:0.8;">Тільки стартуємо — стань одним з перших! 🚀</p>
     </div>
@@ -191,6 +191,43 @@
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    function fmt(n) {
+      return n.toLocaleString('uk-UA') + (n === 1 ? ' підписник' : ' підписників');
+    }
+
+    async function updateYouTubeSubs() {
+      const apiKey = 'AIzaSyCyis7v-XO1WehfDCWsf6IrkrdWtRqJhbg';
+      const el = document.getElementById('youtube-subs');
+      try {
+        const s = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=ostocer&key=${apiKey}`);
+        const sd = await s.json();
+        const channelId = sd?.items?.[0]?.id?.channelId;
+        if (!channelId) { el.textContent = '2 підписники'; return; }
+        const r = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`);
+        const d = await r.json();
+        const stats = d?.items?.[0]?.statistics;
+        if (stats?.hiddenSubscriberCount) { el.textContent = 'приховано'; }
+        else { el.textContent = fmt(Number(stats?.subscriberCount) || 0); }
+      } catch { el.textContent = '2 підписники'; }
+    }
+
+    async function updateTelegramMembers() {
+      const botToken = '8572184995:AAEgEWih_pq28d-mIBonsOQPr7r9kUSMCGk';
+      const chatId = '-1002943143303';
+      const el = document.getElementById('tg-members');
+      try {
+        const r = await fetch(`https://api.telegram.org/bot${botToken}/getChatMemberCount?chat_id=${chatId}`);
+        const d = await r.json();
+        if (d.ok) { el.textContent = fmt(d.result); }
+        else { el.textContent = '2 підписники'; }
+      } catch { el.textContent = '2 підписники'; }
+    }
+
+    updateYouTubeSubs();
+    updateTelegramMembers();
+    setInterval(updateYouTubeSubs, 600000);
+    setInterval(updateTelegramMembers, 600000);
 
     const canvas = document.getElementById('flagCanvas');
     const ctx = canvas.getContext('2d');
