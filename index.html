@@ -45,7 +45,7 @@
       inset: 0;
       width: 100vw;
       height: 100vh;
-      z-index: 0;
+      z-index: -2; /* нижче контенту, але видно */
     }
 
     #particleCanvas {
@@ -228,7 +228,6 @@
 
     .stat-line .icon { width: 18px; height: 18px; }
     .stat-line strong { color: #FFD700; font-weight: 800; }
-    .stat-line a { color: #fe2c55; text-decoration: underline; font-weight: 800; }
 
     .visitor-counter {
       background: var(--stat-bg);
@@ -338,7 +337,7 @@
           <path d="M12.53.02C13.84.02 15.14.02 16.44.02 16.56 5.1 20.98 6.88 21 12.32c-.02 5.44-4.48 7.22-8.02 7.22-3.54 0-8.02-1.78-8-7.22C5 6.88 9.42 5.1 9.56.02c1.3 0 2.6 0 3.92 0zM8.16 14.42c-.8 0-1.44.64-1.44 1.44s.64 1.44 1.44 1.44 1.44-.64 1.44-1.44-.64-1.44-1.44-1.44zm3.84 0c-.8 0-1.44.64-1.44 1.44s.64 1.44 1.44 1.44 1.44-.64 1.44-1.44-.64-1.44-1.44-1.44z"/>
           <path d="M19.59 6.69c-.84-.36-1.72-.6-2.62-.72.12-1.08.36-2.14.72-3.16-1.2.24-2.4.6-3.48 1.08-.36-1.2-.84-2.4-1.56-3.48-.72 1.08-1.32 2.28-1.8 3.48-1.08-.48-2.16-.84-3.24-1.08.36 1.02.72 2.04.96 3.12-.9.12-1.8.36-2.64.72 1.44 2.16 3.36 4.08 5.64 5.4 2.28-1.32 4.2-3.24 5.64-5.4z"/>
         </svg>
-        TikTok: <strong><a href="https://tokcount.com/?user=hapix167" target="_blank">live: перевір зараз (\~8685)</a></strong>
+        TikTok: <strong><a href="https://tokcount.com/?user=hapix167" target="_blank" style="color:#fe2c55; text-decoration:underline;">live: перевір зараз (\~8685)</a></strong>
       </div>
       <p style="margin-top:8px; font-size:0.88rem; opacity:0.8;">Тільки стартуємо — стань одним з перших! 🚀</p>
     </div>
@@ -372,12 +371,14 @@
       themeThumb.textContent = isDark ? '🌙' : '☀️';
     });
 
-    // ── Format subs ──
+    // ── Format numbers (Ukrainian grammar) ──
     function fmt(n) {
-      return n.toLocaleString('uk-UA') + (n === 1 ? ' підписник' : n % 10 === 2 || n % 10 === 3 || n % 10 === 4 ? ' підписники' : ' підписників');
+      if (n === 1) return n + ' підписник';
+      if (n % 10 === 2 || n % 10 === 3 || n % 10 === 4) return n + ' підписники';
+      return n + ' підписників';
     }
 
-    // ── YouTube ──
+    // ── YouTube subs ──
     async function updateYouTubeSubs() {
       const apiKey = 'AIzaSyCyis7v-XO1WehfDCWsf6IrkrdWtRqJhbg';
       const el = document.getElementById('youtube-subs');
@@ -385,16 +386,16 @@
         const s = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=ostocer&key=${apiKey}`);
         const sd = await s.json();
         const channelId = sd?.items?.[0]?.id?.channelId;
-        if (!channelId) { el.textContent = '2 підписники'; return; }
+        if (!channelId) { el.textContent = fmt(0); return; }
         const r = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=\( {channelId}&key= \){apiKey}`);
         const d = await r.json();
         const stats = d?.items?.[0]?.statistics;
         if (stats?.hiddenSubscriberCount) { el.textContent = 'приховано'; }
         else { el.textContent = fmt(Number(stats?.subscriberCount) || 0); }
-      } catch { el.textContent = '2 підписники'; }
+      } catch { el.textContent = fmt(0); }
     }
 
-    // ── Telegram ──
+    // ── Telegram members ──
     async function updateTelegramMembers() {
       const botToken = '8572184995:AAEgEWih_pq28d-mIBonsOQPr7r9kUSMCGk';
       const chatId = '-1002943143303';
@@ -403,8 +404,8 @@
         const r = await fetch(`https://api.telegram.org/bot\( {botToken}/getChatMemberCount?chat_id= \){chatId}`);
         const d = await r.json();
         if (d.ok) { el.textContent = fmt(d.result); }
-        else { el.textContent = '2 підписники'; }
-      } catch { el.textContent = '2 підписники'; }
+        else { el.textContent = fmt(2); }
+      } catch { el.textContent = fmt(2); }
     }
 
     updateYouTubeSubs();
@@ -412,19 +413,15 @@
     setInterval(updateYouTubeSubs, 600000);
     setInterval(updateTelegramMembers, 600000);
 
-    // ── Visitor Counter (localStorage-based) ──
+    // ── Visitor Counter ──
     function updateVisitorCount() {
       const el = document.getElementById('visitor-count');
       const today = new Date().toISOString().slice(0, 10);
       const stored = JSON.parse(localStorage.getItem('parz_visitors') || '{}');
-
       stored[today] = (stored[today] || 0) + 1;
-
       const keys = Object.keys(stored).sort();
       if (keys.length > 7) delete stored[keys[0]];
-
       localStorage.setItem('parz_visitors', JSON.stringify(stored));
-
       const target = stored[today];
       let current = 0;
       const step = Math.max(1, Math.floor(target / 30));
@@ -434,175 +431,106 @@
         if (current >= target) clearInterval(interval);
       }, 40);
     }
-
     updateVisitorCount();
 
-    // ── Flag Canvas (waving flag) ──
-    const canvas = document.getElementById('flagCanvas');
-    const ctx = canvas.getContext('2d');
-
-    const COLS = 60;
-    const ROWS = 30;
-    let W, H;
-
-    function resize() {
-      W = canvas.width  = window.innerWidth;
-      H = canvas.height = window.innerHeight;
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    function getColor(row, shade) {
-      const isBlue = row < ROWS / 2;
-      let r, g, b;
-      if (isBlue) { r = 0;   g = 87;  b = 183; }
-      else        { r = 255; g = 215; b = 0;   }
-      const f = 1 + shade * 0.40;
-      return `rgb(\( {Math.min(255,Math.max(0,r*f))|0}, \){Math.min(255,Math.max(0,g*f))|0},${Math.min(255,Math.max(0,b*f))|0})`;
-    }
-
-    function drawFlag(t) {
-      ctx.clearRect(0, 0, W, H);
-      const cellW = W / COLS;
-      const cellH = H / ROWS;
-
-      const grid = [];
-      for (let row = 0; row <= ROWS; row++) {
-        grid[row] = [];
-        for (let col = 0; col <= COLS; col++) {
-          const progress = col / COLS;
-          const amp = progress * 80;
-          grid[row][col] =
-            Math.sin(col * 0.28 - t * 3.0) * amp +
-            Math.sin(col * 0.14 - t * 1.95 + row * 0.08) * amp * 0.35;
-        }
+    // ── Ukrainian Flag Animation (виправлена, видно на фоні) ──
+    const flagCanvas = document.getElementById('flagCanvas');
+    if (flagCanvas) {
+      const ctx = flagCanvas.getContext('2d');
+      let w, h;
+      function resize() {
+        w = flagCanvas.width = window.innerWidth;
+        h = flagCanvas.height = window.innerHeight;
       }
+      resize();
+      window.addEventListener('resize', resize);
 
-      for (let row = 0; row < ROWS; row++) {
-        for (let col = 0; col < COLS; col++) {
-          const x = col * cellW;
-          const y = row * cellH;
-          const z00 = grid[row][col];
-          const z10 = grid[row][col+1];
-          const z01 = grid[row+1][col];
-          const z11 = grid[row+1][col+1];
+      const cols = 120;
+      const rows = 60;
+      let t = 0;
 
-          function proj(px, py, pz) {
-            return { x: px + pz * 0.06, y: py + pz * 0.10 };
+      function draw() {
+        ctx.clearRect(0, 0, w, h);
+        const cw = w / cols;
+        const ch = h / rows;
+
+        for (let r = 0; r < rows; r++) {
+          const isBlue = r < rows / 2;
+          const br = isBlue ? 0 : 255;
+          const bg = isBlue ? 87 : 215;
+          const bb = isBlue ? 183 : 0;
+
+          for (let c = 0; c < cols; c++) {
+            const x = c * cw;
+            const y = r * ch;
+
+            const wave = Math.sin(c * 0.06 + t * 2.5) * 28 +
+                         Math.sin(c * 0.15 + t * 1.3 + r * 0.04) * 16 +
+                         Math.cos(c * 0.09 - t * 0.8) * 10;
+
+            const shade = 0.85 + Math.sin(t * 1.2 + c * 0.04) * 0.15;
+
+            ctx.fillStyle = `rgb(${Math.round(br * shade)}, ${Math.round(bg * shade)}, ${Math.round(bb * shade)})`;
+
+            ctx.beginPath();
+            ctx.moveTo(x, y + wave);
+            ctx.lineTo(x + cw, y + wave * 1.08);
+            ctx.lineTo(x + cw, y + ch + wave * 1.08);
+            ctx.lineTo(x, y + ch + wave);
+            ctx.closePath();
+            ctx.fill();
           }
-
-          const p00 = proj(x,         y,         z00);
-          const p10 = proj(x+cellW,   y,         z10);
-          const p11 = proj(x+cellW,   y+cellH,   z11);
-          const p01 = proj(x,         y+cellH,   z01);
-
-          const dZdx = ((z10-z00)+(z11-z01)) / (2*cellW);
-          const shade = -dZdx * 0.6;
-
-          ctx.beginPath();
-          ctx.moveTo(p00.x, p00.y);
-          ctx.lineTo(p10.x, p10.y);
-          ctx.lineTo(p11.x, p11.y);
-          ctx.lineTo(p01.x, p01.y);
-          ctx.closePath();
-          ctx.fillStyle = getColor(row, shade);
-          ctx.fill();
-          ctx.strokeStyle = getColor(row, shade);
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
         }
+        t += 0.028;
+        requestAnimationFrame(draw);
       }
+      draw();
     }
 
-    let time = 0;
-    function animateFlag() {
-      drawFlag(time);
-      time += 0.016;
-      requestAnimationFrame(animateFlag);
-    }
-    animateFlag();
-
-    // ── Particle / Stars Canvas ──
-    const pc = document.getElementById('particleCanvas');
-    const pctx = pc.getContext('2d');
-
-    let PW, PH;
+    // ── Particles (зірки) ── (якщо хочеш, можеш видалити або лишити)
+    const pCanvas = document.getElementById('particleCanvas');
+    const pCtx = pCanvas.getContext('2d');
+    let pw, ph;
     function resizeP() {
-      PW = pc.width  = window.innerWidth;
-      PH = pc.height = window.innerHeight;
+      pw = pCanvas.width = window.innerWidth;
+      ph = pCanvas.height = window.innerHeight;
     }
     resizeP();
     window.addEventListener('resize', resizeP);
 
-    const NUM_PARTICLES = 120;
     const particles = [];
-
-    function randomParticle() {
-      const isBlue = Math.random() > 0.5;
-      return {
-        x: Math.random() * (PW || window.innerWidth),
-        y: Math.random() * (PH || window.innerHeight),
-        r: Math.random() * 2.2 + 0.4,
-        hue: isBlue ? 210 : 50,
-        sat: 100,
-        alpha: Math.random() * 0.7 + 0.2,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        twinkleSpeed: Math.random() * 0.05 + 0.01,
-        twinkleOffset: Math.random() * Math.PI * 2,
-        isStar: Math.random() < 0.15,
-      };
+    for (let i = 0; i < 100; i++) {
+      particles.push({
+        x: Math.random() * pw,
+        y: Math.random() * ph,
+        r: Math.random() * 1.5 + 0.5,
+        vx: (Math.random()  
+vy: (Math.random() - 0.5) * 0.5,
+        hue: Math.random() > 0.5 ? 210 : 50,
+        alpha: Math.random() * 0.6 + 0.4
+      });
     }
 
-    for (let i = 0; i < NUM_PARTICLES; i++) {
-      particles.push(randomParticle());
-    }
-
-    function drawParticles(t) {
-      pctx.clearRect(0, 0, PW, PH);
-      for (const p of particles) {
+    function drawParticles() {
+      pCtx.clearRect(0, 0, pw, ph);
+      particles.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
-        if (p.x < 0 || p.x > PW) p.vx *= -1;
-        if (p.y < 0 || p.y > PH) p.vy *= -1;
+        if (p.x < 0 || p.x > pw) p.vx *= -1;
+        if (p.y < 0 || p.y > ph) p.vy *= -1;
 
-        const twinkle = 0.4 + 0.6 * Math.abs(Math.sin(t * p.twinkleSpeed * 60 + p.twinkleOffset));
-        const alpha = p.alpha * twinkle;
-
-        pctx.save();
-        pctx.globalAlpha = alpha;
-
-        if (p.isStar) {
-          pctx.fillStyle = `hsl(\( {p.hue}, \){p.sat}%,85%)`;
-          pctx.shadowColor = `hsl(${p.hue},100%,70%)`;
-          pctx.shadowBlur = 10;
-          const sr = p.r * 3;
-          pctx.beginPath();
-          for (let k = 0; k < 8; k++) {
-            const angle = (k * Math.PI / 4) + (t * 0.5);
-            const x = p.x + Math.cos(angle) * sr;
-            const y = p.y + Math.sin(angle) * sr;
-            pctx.lineTo(x, y);
-          }
-          pctx.closePath();
-          pctx.fill();
-        } else {
-          pctx.fillStyle = `hsl(\( {p.hue}, \){p.sat}%,70%)`;
-          pctx.beginPath();
-          pctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          pctx.fill();
-        }
-        pctx.restore();
-      }
+        pCtx.globalAlpha = p.alpha * (0.6 + 0.4 * Math.sin(Date.now() * 0.001 + p.x));
+        pCtx.fillStyle = `hsl(${p.hue}, 100%, 80%)`;
+        pCtx.beginPath();
+        pCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        pCtx.fill();
+      });
+      requestAnimationFrame(drawParticles);
     }
-
-    let pTime = 0;
-    function animateParticles() {
-      drawParticles(pTime);
-      pTime += 0.016;
-      requestAnimationFrame(animateParticles);
-    }
-    animateParticles();
+    drawParticles();
   </script>
 </body>
 </html>
+
+
+        
