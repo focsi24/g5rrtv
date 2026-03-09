@@ -14,6 +14,13 @@
       --text-main: #ffffff;
     }
 
+    [data-theme="light"] {
+      --bg-overlay: rgba(255, 255, 245, 0.1);
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --card-border: rgba(0, 87, 183, 0.2);
+      --text-main: #001a33;
+    }
+
     body {
       height: 100vh; overflow: hidden;
       font-family: 'Segoe UI', system-ui, sans-serif;
@@ -24,6 +31,16 @@
     #flagCanvas { position: fixed; inset: 0; z-index: 0; }
     .overlay { position: fixed; inset: 0; background: var(--bg-overlay); z-index: 1; pointer-events: none; }
 
+    /* Перемикач теми */
+    .theme-toggle {
+      position: fixed; top: 20px; right: 20px; z-index: 100;
+      width: 50px; height: 50px; border-radius: 50%;
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      transition: 0.3s;
+    }
+
     .content {
       position: relative; z-index: 10;
       background: var(--card-bg);
@@ -33,6 +50,7 @@
       width: 90%; max-width: 380px;
       text-align: center;
       box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      color: var(--text-main);
     }
 
     h1 {
@@ -44,50 +62,46 @@
     @keyframes shine { to { background-position: 200% center; } }
 
     .links { display: flex; flex-direction: column; gap: 16px; }
+    
     .btn {
-      padding: 16px 16px 16px 70px; /* більше місця для іконки */
-      border-radius: 28px; /* трохи м'якші кути як на скріншоті */
+      padding: 16px 16px 16px 65px;
+      border-radius: 20px; 
       color: #fff; 
       text-decoration: none;
       font-weight: 700; 
-      font-size: 1.25rem; 
+      font-size: 1.2rem; 
       transition: 0.3s ease;
-      background-size: 40px 40px; /* оптимальний розмір */
+      background-size: 30px 30px;
       background-repeat: no-repeat;
-      background-position: 20px center;
+      background-position: 18px center;
       display: flex;
       align-items: center;
-      justify-content: flex-start; /* текст зліва після іконки */
+      justify-content: flex-start;
       position: relative;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
-    .btn:active { transform: scale(0.97); }
+    .btn:active { transform: scale(0.96); }
 
     /* YouTube */
-    .yt {
-      background-color: #ff0000;
-      background-image: url('https://img.icons8.com/color/96/youtube-play.png');
-    }
-
+    .yt { background-color: #ff0000; background-image: url('https://upload.wikimedia.org/wikipedia/commons/e/ef/Youtube_logo.png'); background-size: 35px auto; }
+    
     /* Telegram */
-    .tg {
-      background-color: #0088cc;
-      background-image: url('https://img.icons8.com/color/96/telegram-app.png');
+    .tg { background-color: #0088cc; background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/512px-Telegram_logo.svg.png'); }
+    
+    /* TikTok — ВИПРАВЛЕНО: Використовуємо надійний CDN та додаємо контраст */
+    .tt { 
+      background-color: #010101; /* Чистий чорний для TikTok */
+      border: 1px solid #333; 
+      /* Офіційна іконка з Google Fonts CDN */
+      background-image: url('https://fonts.gstatic.com/s/i/short-term/release/googlesymbols/tiktok/default/24px.svg'); 
+      background-size: 28px 28px;
+      /* Додаємо легке біле підсвічування, щоб іконка не губилася */
+      filter: drop-shadow(0 0 2px rgba(255,255,255,0.3));
     }
-
-    /* TikTok — стабільна офіційна кольорова іконка 2026 */
-    .tt {
-      background: linear-gradient(135deg, #000, #111); /* темний фон для стилю */
-      border: 1px solid #333;
-      background-image: url('https://img.icons8.com/color/96/tiktok--v1.png');
-      background-size: 44px 44px; /* трохи більша для TikTok */
-    }
-
-    /* Instagram — новий градієнтний icon 2026 */
-    .ig {
-      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-      background-image: url('https://img.icons8.com/fluency/96/instagram-new.png');
+    
+    /* Instagram */
+    .ig { 
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); 
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/600px-Instagram_icon.png');
     }
   </style>
 </head>
@@ -95,6 +109,8 @@
 
   <canvas id="flagCanvas"></canvas>
   <div class="overlay"></div>
+
+  <button class="theme-toggle" id="themeBtn">🌙</button>
 
   <div class="content">
     <h1>Parzivalled</h1>
@@ -108,7 +124,20 @@
   </div>
 
   <script>
-    // Прапорець (без змін)
+    // Логіка теми
+    const themeBtn = document.getElementById('themeBtn');
+    themeBtn.addEventListener('click', () => {
+      const doc = document.documentElement;
+      if (doc.getAttribute('data-theme') === 'dark') {
+        doc.setAttribute('data-theme', 'light');
+        themeBtn.textContent = '☀️';
+      } else {
+        doc.setAttribute('data-theme', 'dark');
+        themeBtn.textContent = '🌙';
+      }
+    });
+
+    // Прапор: яскравість 0.85 зафіксована
     const canvas = document.getElementById('flagCanvas');
     const ctx = canvas.getContext('2d');
     let time = 0;
@@ -123,7 +152,7 @@
         for(let c = 0; c < cols; c++) {
           const wave = Math.sin(c * 0.4 + time) * 20;
           ctx.fillStyle = (r < rows/2) ? '#0055ff' : '#ffea00'; 
-          ctx.globalAlpha = 0.85;
+          ctx.globalAlpha = 0.85; 
           ctx.fillRect(c * w, r * h + wave, w + 1, h + 1);
         }
       }
@@ -134,6 +163,7 @@
   </script>
 </body>
 </html>
+
 
 
         
