@@ -2,532 +2,135 @@
 <html lang="uk" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Parzivalled — Соціальні мережі</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parzivalled — Live Stats</title>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg-overlay: rgba(0, 0, 20, 0.50);
-      --card-bg: rgba(0, 0, 20, 0.80);
-      --card-border: rgba(255,255,255,0.18);
-      --text-main: #f0f0ff;
-      --text-sub: #c0c0ee;
-      --text-muted: #8080aa;
-      --stat-bg: rgba(255,255,255,0.08);
-      --stat-border: rgba(255,255,255,0.15);
-      --shadow: rgba(0,0,0,0.8);
-      --transition: 0.5s cubic-bezier(0.4,0,0.2,1);
-    }
-
-    [data-theme="light"] {
-      --bg-overlay: rgba(255, 255, 240, 0.40);
-      --card-bg: rgba(255, 255, 255, 0.88);
-      --card-border: rgba(0,50,150,0.25);
-      --text-main: #0a0a2a;
-      --text-sub: #2a2a6a;
-      --text-muted: #5555aa;
-      --stat-bg: rgba(0,0,50,0.06);
-      --stat-border: rgba(0,0,100,0.15);
-      --shadow: rgba(0,50,150,0.3);
-    }
-
-    html, body {
-      height: 100%; width: 100%;
-      overflow: hidden;
-      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
-      color: var(--text-main);
-      transition: color var(--transition);
-    }
-
-    #flagCanvas {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: -2; /* нижче контенту, але видно */
-    }
-
-    #particleCanvas {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: var(--bg-overlay);
-      z-index: 1;
-      pointer-events: none;
-      transition: background var(--transition);
+      --bg-overlay: rgba(0, 0, 10, 0.15); 
+      --card-bg: rgba(5, 5, 25, 0.92);
+      --card-border: rgba(255, 255, 255, 0.35);
+      --text-main: #ffffff;
     }
 
     body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      height: 100vh; overflow: hidden;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      display: flex; align-items: center; justify-content: center;
+      background: #000;
     }
 
-    .theme-toggle {
-      position: fixed;
-      top: 18px;
-      right: 18px;
-      z-index: 100;
-      width: 52px;
-      height: 28px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #0057B7, #FFD700);
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 4px 18px rgba(0,87,183,0.5);
-      display: flex;
-      align-items: center;
-      padding: 3px;
-      transition: box-shadow 0.3s;
-    }
-    .theme-toggle:hover { box-shadow: 0 6px 24px rgba(255,215,0,0.6); }
-
-    .theme-toggle-thumb {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    }
-
-    [data-theme="light"] .theme-toggle-thumb {
-      transform: translateX(24px);
-    }
+    #flagCanvas { position: fixed; inset: 0; z-index: 0; }
+    .overlay { position: fixed; inset: 0; background: var(--bg-overlay); z-index: 1; pointer-events: none; }
 
     .content {
-      position: relative;
-      z-index: 10;
+      position: relative; z-index: 10;
       background: var(--card-bg);
-      backdrop-filter: blur(20px);
+      backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
       border: 1px solid var(--card-border);
-      border-radius: 28px;
-      padding: 32px 28px;
-      width: 90%;
-      max-width: 480px;
-      box-shadow: 0 20px 80px var(--shadow);
-      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
+      border-radius: 40px; padding: 35px;
+      width: 90%; max-width: 380px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
     }
-
-    .profile { text-align: center; margin-bottom: 20px; }
-
-    .profile-image {
-      width: 100px; height: 100px;
-      margin: 0 auto 14px;
-      border-radius: 50%;
-      border: 5px solid transparent;
-      background: linear-gradient(white, white) padding-box,
-                  linear-gradient(135deg, #0057B7, #FFD700) border-box;
-      overflow: hidden;
-      box-shadow: 0 10px 40px rgba(0,87,183,0.6);
-    }
-
-    .profile-image img { width: 100%; height: 100%; object-fit: cover; }
 
     h1 {
-      font-size: 2.2rem; font-weight: 900;
-      background: linear-gradient(90deg, #FFD700, #ffffff, #4da6ff, #FFD700);
+      font-size: 2.3rem; font-weight: 900; margin-bottom: 35px;
+      background: linear-gradient(90deg, #FFD700, #fff, #4da6ff, #FFD700);
       -webkit-background-clip: text; background-clip: text; color: transparent;
-      background-size: 300%;
-      animation: shine 10s linear infinite;
-      margin-bottom: 6px;
+      background-size: 200% auto; animation: shine 3s linear infinite;
     }
+    @keyframes shine { to { background-position: 200% center; } }
 
-    [data-theme="light"] h1 {
-      background: linear-gradient(90deg, #FFD700, #0057B7, #1a73e8, #FFD700);
-      -webkit-background-clip: text; background-clip: text;
-      background-size: 300%;
-    }
-
-    @keyframes shine { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
-
-    .subtitle { color: var(--text-sub); font-size: 0.95rem; margin-bottom: 10px; transition: color var(--transition); }
-
-    .badge {
-      display: inline-block;
-      padding: 5px 16px;
-      background: linear-gradient(135deg, #0057B7, #1a73e8);
-      color: white; border-radius: 999px;
-      font-size: 0.9rem; font-weight: 700;
-    }
-
-    .about {
-      font-size: 0.95rem; text-align: center;
-      margin: 14px auto; line-height: 1.5; color: var(--text-sub);
-      transition: color var(--transition);
-    }
-
-    .highlight {
-      background: linear-gradient(90deg, #FFD700, #ffea80, #FFD700);
-      -webkit-background-clip: text; background-clip: text; color: transparent;
-      font-weight: 800; background-size: 200%;
-      animation: textShine 6s linear infinite;
-    }
-
-    @keyframes textShine { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
-
-    .links { display: flex; flex-direction: column; gap: 12px; margin: 18px 0; }
-
-    .link-button {
-      display: flex; align-items: center; justify-content: center;
-      gap: 12px; padding: 14px 24px;
-      font-size: 1.1rem; font-weight: 700;
-      color: white; text-decoration: none;
-      border-radius: 18px;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .link-button::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(255,255,255,0);
-      transition: background 0.3s;
-    }
-
-    .link-button:hover::after { background: rgba(255,255,255,0.10); }
-    .link-button:hover { transform: translateY(-4px) scale(1.04); box-shadow: 0 16px 50px rgba(0,0,0,0.6); }
-    .link-button:active { transform: scale(0.97); }
-
-    .youtube  { background: linear-gradient(135deg, #FF0000, #c40000); }
-    .telegram { background: linear-gradient(135deg, #0088CC, #005f99); }
-    .tiktok   { background: linear-gradient(135deg, #fe2c55, #000000); }
-    .tiktok:hover { background: linear-gradient(135deg, #ff004c, #111111); box-shadow: 0 16px 50px rgba(254,44,85,0.5); }
-
-    .icon { width: 26px; height: 26px; flex-shrink: 0; }
-
-    .live-stats {
-      background: var(--stat-bg);
-      border: 1px solid var(--stat-border);
-      border-radius: 18px; padding: 14px;
-      text-align: center; margin: 14px 0 0;
-      transition: background var(--transition), border-color var(--transition);
-    }
-
-    .stats-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; }
-
-    .stat-line {
-      font-size: 0.95rem; margin: 6px 0;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-
-    .stat-line .icon { width: 18px; height: 18px; }
-    .stat-line strong { color: #FFD700; font-weight: 800; }
-
-    .visitor-counter {
-      background: var(--stat-bg);
-      border: 1px solid var(--stat-border);
-      border-radius: 18px;
-      padding: 12px 16px;
-      text-align: center;
-      margin: 10px 0 0;
+    .links { display: flex; flex-direction: column; gap: 16px; }
+    .btn {
+      padding: 16px 16px 16px 70px; /* більше місця для іконки */
+      border-radius: 28px; /* трохи м'якші кути як на скріншоті */
+      color: #fff; 
+      text-decoration: none;
+      font-weight: 700; 
+      font-size: 1.25rem; 
+      transition: 0.3s ease;
+      background-size: 40px 40px; /* оптимальний розмір */
+      background-repeat: no-repeat;
+      background-position: 20px center;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: background var(--transition), border-color var(--transition);
+      justify-content: flex-start; /* текст зліва після іконки */
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    .btn:active { transform: scale(0.97); }
+
+    /* YouTube */
+    .yt {
+      background-color: #ff0000;
+      background-image: url('https://img.icons8.com/color/96/youtube-play.png');
     }
 
-    .visitor-counter .vc-icon {
-      font-size: 1.3rem;
-      animation: pulse 2s ease-in-out infinite;
+    /* Telegram */
+    .tg {
+      background-color: #0088cc;
+      background-image: url('https://img.icons8.com/color/96/telegram-app.png');
     }
 
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.2); }
+    /* TikTok — стабільна офіційна кольорова іконка 2026 */
+    .tt {
+      background: linear-gradient(135deg, #000, #111); /* темний фон для стилю */
+      border: 1px solid #333;
+      background-image: url('https://img.icons8.com/color/96/tiktok--v1.png');
+      background-size: 44px 44px; /* трохи більша для TikTok */
     }
 
-    .vc-text { font-size: 0.92rem; color: var(--text-sub); transition: color var(--transition); }
-    .vc-text strong { color: #4da6ff; font-size: 1.05rem; font-weight: 800; }
-
-    .vc-dot {
-      display: inline-block;
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: #4cff9a;
-      box-shadow: 0 0 6px #4cff9a;
-      animation: blink 1.5s ease-in-out infinite;
-      margin-right: 4px;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-
-    .footer {
-      text-align: center; color: var(--text-muted);
-      font-size: 0.82rem; margin-top: 14px;
-      transition: color var(--transition);
+    /* Instagram — новий градієнтний icon 2026 */
+    .ig {
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      background-image: url('https://img.icons8.com/fluency/96/instagram-new.png');
     }
   </style>
 </head>
 <body>
 
   <canvas id="flagCanvas"></canvas>
-  <canvas id="particleCanvas"></canvas>
   <div class="overlay"></div>
 
-  <!-- Theme toggle -->
-  <button class="theme-toggle" id="themeToggle" title="Перемикач теми">
-    <div class="theme-toggle-thumb" id="themeThumb">🌙</div>
-  </button>
-
   <div class="content">
-    <div class="profile">
-      <div class="profile-image">
-        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%230057B7' width='100' height='50'/%3E%3Crect fill='%23FFD700' y='50' width='100' height='50'/%3E%3Ctext x='50' y='62' font-size='45' text-anchor='middle' fill='white' font-weight='bold' font-family='Arial'%3EP%3C/text%3E%3C/svg%3E" alt="Parzivalled">
-      </div>
-      <h1>Parzivalled</h1>
-      <p class="subtitle">Контент-креатор • Стрімер</p>
-      <span class="badge">💙💛 Активний</span>
-    </div>
-
-    <div class="about">
-      <span class="highlight">Люблю CS2, фільми та кіберспорт.</span><br>
-      Якщо ти теж фанат — <strong>приєднуйся!</strong>
-    </div>
-
+    <h1>Parzivalled</h1>
+    
     <div class="links">
-      <a href="https://www.youtube.com/@ostocer" target="_blank" class="link-button youtube">
-        <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-        YouTube
-      </a>
-      <a href="https://t.me/berlogarozdumiv" target="_blank" class="link-button telegram">
-        <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-        Telegram
-      </a>
-      <a href="https://www.tiktok.com/@hapix167" target="_blank" class="link-button tiktok">
-        <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12.53.02C13.84.02 15.14.02 16.44.02 16.56 5.1 20.98 6.88 21 12.32c-.02 5.44-4.48 7.22-8.02 7.22-3.54 0-8.02-1.78-8-7.22C5 6.88 9.42 5.1 9.56.02c1.3 0 2.6 0 3.92 0zM8.16 14.42c-.8 0-1.44.64-1.44 1.44s.64 1.44 1.44 1.44 1.44-.64 1.44-1.44-.64-1.44-1.44-1.44zm3.84 0c-.8 0-1.44.64-1.44 1.44s.64 1.44 1.44 1.44 1.44-.64 1.44-1.44-.64-1.44-1.44-1.44z"/>
-          <path d="M19.59 6.69c-.84-.36-1.72-.6-2.62-.72.12-1.08.36-2.14.72-3.16-1.2.24-2.4.6-3.48 1.08-.36-1.2-.84-2.4-1.56-3.48-.72 1.08-1.32 2.28-1.8 3.48-1.08-.48-2.16-.84-3.24-1.08.36 1.02.72 2.04.96 3.12-.9.12-1.8.36-2.64.72 1.44 2.16 3.36 4.08 5.64 5.4 2.28-1.32 4.2-3.24 5.64-5.4z"/>
-        </svg>
-        TikTok @hapix167
-      </a>
-    </div>
-
-    <div class="live-stats">
-      <p class="stats-title">📊 Наші цифри зараз:</p>
-      <div class="stat-line">
-        <svg class="icon" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-        YouTube: <strong id="youtube-subs">...</strong>
-      </div>
-      <div class="stat-line">
-        <svg class="icon" viewBox="0 0 24 24" fill="#0088CC"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-        Telegram: <strong id="tg-members">...</strong>
-      </div>
-      <div class="stat-line">
-        <svg class="icon" viewBox="0 0 24 24" fill="#fe2c55">
-          <path d="M12.53.02C13.84.02 15.14.02 16.44.02 16.56 5.1 20.98 6.88 21 12.32c-.02 5.44-4.48 7.22-8.02 7.22-3.54 0-8.02-1.78-8-7.22C5 6.88 9.42 5.1 9.56.02c1.3 0 2.6 0 3.92 0zM8.16 14.42c-.8 0-1.44.64-1.44 1.44s.64 1.44 1.44 1.44 1.44-.64 1.44-1.44-.64-1.44-1.44-1.44zm3.84 0c-.8 0-1.44.64-1.44 1.44s.64 1.44 1.44 1.44 1.44-.64 1.44-1.44-.64-1.44-1.44-1.44z"/>
-          <path d="M19.59 6.69c-.84-.36-1.72-.6-2.62-.72.12-1.08.36-2.14.72-3.16-1.2.24-2.4.6-3.48 1.08-.36-1.2-.84-2.4-1.56-3.48-.72 1.08-1.32 2.28-1.8 3.48-1.08-.48-2.16-.84-3.24-1.08.36 1.02.72 2.04.96 3.12-.9.12-1.8.36-2.64.72 1.44 2.16 3.36 4.08 5.64 5.4 2.28-1.32 4.2-3.24 5.64-5.4z"/>
-        </svg>
-        TikTok: <strong><a href="https://tokcount.com/?user=hapix167" target="_blank" style="color:#fe2c55; text-decoration:underline;">live: перевір зараз (\~8685)</a></strong>
-      </div>
-      <p style="margin-top:8px; font-size:0.88rem; opacity:0.8;">Тільки стартуємо — стань одним з перших! 🚀</p>
-    </div>
-
-    <div class="visitor-counter">
-      <span class="vc-icon">👁️</span>
-      <span class="vc-text">
-        <span class="vc-dot"></span>
-        Відвідувачів сьогодні: <strong id="visitor-count">...</strong>
-      </span>
-    </div>
-
-    <div class="footer">
-      <p>© <span id="year"></span> Parzivalled • Зроблено з 💙💛</p>
+      <a href="https://youtube.com/@ostocer" target="_blank" class="btn yt">YouTube</a>
+      <a href="https://t.me/berlogarozdumiv" target="_blank" class="btn tg">Telegram</a>
+      <a href="https://tiktok.com/@hapix167" target="_blank" class="btn tt">TikTok</a>
+      <a href="https://www.instagram.com/n1k1tos.as" target="_blank" class="btn ig">Instagram</a>
     </div>
   </div>
 
   <script>
-    // ── Year ──
-    document.getElementById('year').textContent = new Date().getFullYear();
+    // Прапорець (без змін)
+    const canvas = document.getElementById('flagCanvas');
+    const ctx = canvas.getContext('2d');
+    let time = 0;
 
-    // ── Theme Toggle ──
-    const html = document.documentElement;
-    const themeToggle = document.getElementById('themeToggle');
-    const themeThumb = document.getElementById('themeThumb');
-    let isDark = true;
+    function draw() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const rows = 12; const cols = 18;
+      const w = canvas.width / cols; const h = canvas.height / rows;
 
-    themeToggle.addEventListener('click', () => {
-      isDark = !isDark;
-      html.setAttribute('data-theme', isDark ? 'dark' : 'light');
-      themeThumb.textContent = isDark ? '🌙' : '☀️';
-    });
-
-    // ── Format numbers (Ukrainian grammar) ──
-    function fmt(n) {
-      if (n === 1) return n + ' підписник';
-      if (n % 10 === 2 || n % 10 === 3 || n % 10 === 4) return n + ' підписники';
-      return n + ' підписників';
-    }
-
-    // ── YouTube subs ──
-    async function updateYouTubeSubs() {
-      const apiKey = 'AIzaSyCyis7v-XO1WehfDCWsf6IrkrdWtRqJhbg';
-      const el = document.getElementById('youtube-subs');
-      try {
-        const s = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=ostocer&key=${apiKey}`);
-        const sd = await s.json();
-        const channelId = sd?.items?.[0]?.id?.channelId;
-        if (!channelId) { el.textContent = fmt(0); return; }
-        const r = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=\( {channelId}&key= \){apiKey}`);
-        const d = await r.json();
-        const stats = d?.items?.[0]?.statistics;
-        if (stats?.hiddenSubscriberCount) { el.textContent = 'приховано'; }
-        else { el.textContent = fmt(Number(stats?.subscriberCount) || 0); }
-      } catch { el.textContent = fmt(0); }
-    }
-
-    // ── Telegram members ──
-    async function updateTelegramMembers() {
-      const botToken = '8572184995:AAEgEWih_pq28d-mIBonsOQPr7r9kUSMCGk';
-      const chatId = '-1002943143303';
-      const el = document.getElementById('tg-members');
-      try {
-        const r = await fetch(`https://api.telegram.org/bot\( {botToken}/getChatMemberCount?chat_id= \){chatId}`);
-        const d = await r.json();
-        if (d.ok) { el.textContent = fmt(d.result); }
-        else { el.textContent = fmt(2); }
-      } catch { el.textContent = fmt(2); }
-    }
-
-    updateYouTubeSubs();
-    updateTelegramMembers();
-    setInterval(updateYouTubeSubs, 600000);
-    setInterval(updateTelegramMembers, 600000);
-
-    // ── Visitor Counter ──
-    function updateVisitorCount() {
-      const el = document.getElementById('visitor-count');
-      const today = new Date().toISOString().slice(0, 10);
-      const stored = JSON.parse(localStorage.getItem('parz_visitors') || '{}');
-      stored[today] = (stored[today] || 0) + 1;
-      const keys = Object.keys(stored).sort();
-      if (keys.length > 7) delete stored[keys[0]];
-      localStorage.setItem('parz_visitors', JSON.stringify(stored));
-      const target = stored[today];
-      let current = 0;
-      const step = Math.max(1, Math.floor(target / 30));
-      const interval = setInterval(() => {
-        current = Math.min(current + step, target);
-        el.textContent = current.toLocaleString('uk-UA');
-        if (current >= target) clearInterval(interval);
-      }, 40);
-    }
-    updateVisitorCount();
-
-    // ── Ukrainian Flag Animation (виправлена, видно на фоні) ──
-    const flagCanvas = document.getElementById('flagCanvas');
-    if (flagCanvas) {
-      const ctx = flagCanvas.getContext('2d');
-      let w, h;
-      function resize() {
-        w = flagCanvas.width = window.innerWidth;
-        h = flagCanvas.height = window.innerHeight;
-      }
-      resize();
-      window.addEventListener('resize', resize);
-
-      const cols = 120;
-      const rows = 60;
-      let t = 0;
-
-      function draw() {
-        ctx.clearRect(0, 0, w, h);
-        const cw = w / cols;
-        const ch = h / rows;
-
-        for (let r = 0; r < rows; r++) {
-          const isBlue = r < rows / 2;
-          const br = isBlue ? 0 : 255;
-          const bg = isBlue ? 87 : 215;
-          const bb = isBlue ? 183 : 0;
-
-          for (let c = 0; c < cols; c++) {
-            const x = c * cw;
-            const y = r * ch;
-
-            const wave = Math.sin(c * 0.06 + t * 2.5) * 28 +
-                         Math.sin(c * 0.15 + t * 1.3 + r * 0.04) * 16 +
-                         Math.cos(c * 0.09 - t * 0.8) * 10;
-
-            const shade = 0.85 + Math.sin(t * 1.2 + c * 0.04) * 0.15;
-
-            ctx.fillStyle = `rgb(${Math.round(br * shade)}, ${Math.round(bg * shade)}, ${Math.round(bb * shade)})`;
-
-            ctx.beginPath();
-            ctx.moveTo(x, y + wave);
-            ctx.lineTo(x + cw, y + wave * 1.08);
-            ctx.lineTo(x + cw, y + ch + wave * 1.08);
-            ctx.lineTo(x, y + ch + wave);
-            ctx.closePath();
-            ctx.fill();
-          }
+      for(let r = 0; r < rows; r++) {
+        for(let c = 0; c < cols; c++) {
+          const wave = Math.sin(c * 0.4 + time) * 20;
+          ctx.fillStyle = (r < rows/2) ? '#0055ff' : '#ffea00'; 
+          ctx.globalAlpha = 0.85;
+          ctx.fillRect(c * w, r * h + wave, w + 1, h + 1);
         }
-        t += 0.028;
-        requestAnimationFrame(draw);
       }
-      draw();
+      time += 0.04;
+      requestAnimationFrame(draw);
     }
-
-    // ── Particles (зірки) ── (якщо хочеш, можеш видалити або лишити)
-    const pCanvas = document.getElementById('particleCanvas');
-    const pCtx = pCanvas.getContext('2d');
-    let pw, ph;
-    function resizeP() {
-      pw = pCanvas.width = window.innerWidth;
-      ph = pCanvas.height = window.innerHeight;
-    }
-    resizeP();
-    window.addEventListener('resize', resizeP);
-
-    const particles = [];
-    for (let i = 0; i < 100; i++) {
-      particles.push({
-        x: Math.random() * pw,
-        y: Math.random() * ph,
-        r: Math.random() * 1.5 + 0.5,
-        vx: (Math.random()  
-vy: (Math.random() - 0.5) * 0.5,
-        hue: Math.random() > 0.5 ? 210 : 50,
-        alpha: Math.random() * 0.6 + 0.4
-      });
-    }
-
-    function drawParticles() {
-      pCtx.clearRect(0, 0, pw, ph);
-      particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0 || p.x > pw) p.vx *= -1;
-        if (p.y < 0 || p.y > ph) p.vy *= -1;
-
-        pCtx.globalAlpha = p.alpha * (0.6 + 0.4 * Math.sin(Date.now() * 0.001 + p.x));
-        pCtx.fillStyle = `hsl(${p.hue}, 100%, 80%)`;
-        pCtx.beginPath();
-        pCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        pCtx.fill();
-      });
-      requestAnimationFrame(drawParticles);
-    }
-    drawParticles();
+    draw();
   </script>
 </body>
 </html>
