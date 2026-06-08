@@ -1,165 +1,275 @@
 <!DOCTYPE html>
-<html lang="uk" data-theme="dark">
+<html lang="uk">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Parzivalled — Live Stats</title>
+  <meta name="description" content="Parzivalled — всі посилання" />
+  <title>Parzivalled</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Onest:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg-overlay: rgba(0, 0, 10, 0.15); 
-      --card-bg: rgba(5, 5, 25, 0.92);
-      --card-border: rgba(255, 255, 255, 0.35);
-      --text-main: #ffffff;
+      --blue: #0057B7;
+      --yellow: #FFD700;
+      --bg: #05050f;
+      --surface: #0d0d20;
+      --text: #f0f0ff;
+      --muted: rgba(240,240,255,0.45);
     }
 
-    [data-theme="light"] {
-      --bg-overlay: rgba(255, 255, 245, 0.1);
-      --card-bg: rgba(255, 255, 255, 0.95);
-      --card-border: rgba(0, 87, 183, 0.2);
-      --text-main: #001a33;
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Onest', sans-serif;
+      overflow-x: hidden;
     }
 
-    body {
-      height: 100vh; overflow: hidden;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      display: flex; align-items: center; justify-content: center;
-      background: #000;
+    /* ── GRAIN OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.04;
+      pointer-events: none;
     }
 
-    #flagCanvas { position: fixed; inset: 0; z-index: 0; }
-    .overlay { position: fixed; inset: 0; background: var(--bg-overlay); z-index: 1; pointer-events: none; }
-
-    .theme-toggle {
-      position: fixed; top: 20px; right: 20px; z-index: 100;
-      width: 50px; height: 50px; border-radius: 50%;
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    /* ── BACKGROUND GLOW ── */
+    .bg-glow {
+      position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+    }
+    .bg-glow span {
+      position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.18;
+      will-change: transform;
+    }
+    .bg-glow span:nth-child(1) {
+      width: 600px; height: 600px;
+      background: var(--blue);
+      top: -150px; left: -150px;
+      animation: drift1 16s ease-in-out infinite alternate;
+    }
+    .bg-glow span:nth-child(2) {
+      width: 500px; height: 500px;
+      background: var(--yellow);
+      bottom: -120px; right: -100px;
+      animation: drift2 12s ease-in-out infinite alternate;
+      animation-delay: -5s;
+    }
+    .bg-glow span:nth-child(3) {
+      width: 300px; height: 300px;
+      background: #6040ff;
+      top: calc(50% - 150px); left: calc(50% - 150px);
+      animation: drift3 10s ease-in-out infinite alternate;
+      animation-delay: -3s;
+    }
+    @keyframes drift1 {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(50px, 40px) scale(1.1); }
+    }
+    @keyframes drift2 {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(-40px, -30px) scale(1.08); }
+    }
+    @keyframes drift3 {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(30px, -25px) scale(1.12); }
     }
 
-    .content {
+    /* ── FLAG STRIPE (декор) ── */
+    .flag-stripe {
+      position: fixed; top: 0; left: 0; right: 0; height: 4px; z-index: 100;
+      background: linear-gradient(90deg, var(--blue) 50%, var(--yellow) 50%);
+    }
+
+    /* ── LAYOUT ── */
+    .page {
       position: relative; z-index: 10;
-      background: var(--card-bg);
-      backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-      border: 1px solid var(--card-border);
-      border-radius: 40px; padding: 35px;
-      width: 90%; max-width: 380px;
-      text-align: center;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-      color: var(--text-main);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 60px 24px 48px;
+      gap: 0;
     }
 
-    h1 {
-      font-size: 2.3rem; font-weight: 900; margin-bottom: 35px;
-      background: linear-gradient(90deg, #FFD700, #fff, #4da6ff, #FFD700);
+    /* ── AVATAR ── */
+    .avatar-wrap {
+      position: relative; margin-bottom: 28px;
+      opacity: 0; animation: fadeUp 0.7s 0.1s ease forwards;
+    }
+    .avatar-ring {
+      width: 88px; height: 88px; border-radius: 50%;
+      background: conic-gradient(var(--yellow) 0deg, var(--blue) 180deg, var(--yellow) 360deg);
+      padding: 3px;
+      animation: spin 8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .avatar-inner {
+      width: 100%; height: 100%; border-radius: 50%;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.4rem;
+    }
+
+    /* ── NAME ── */
+    .name {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      margin-bottom: 10px;
+      opacity: 0; animation: fadeUp 0.7s 0.2s ease forwards;
+    }
+    .name span {
+      background: linear-gradient(100deg, var(--yellow) 0%, #fff 45%, var(--blue) 100%);
       -webkit-background-clip: text; background-clip: text; color: transparent;
-      background-size: 200% auto; animation: shine 3s linear infinite;
     }
-    @keyframes shine { to { background-position: 200% center; } }
 
-    .links { display: flex; flex-direction: column; gap: 16px; }
-    
+    .bio {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 40px;
+      letter-spacing: 0.04em;
+      opacity: 0; animation: fadeUp 0.7s 0.3s ease forwards;
+    }
+
+    /* ── LINKS ── */
+    .links {
+      display: flex; flex-direction: column; gap: 12px;
+      width: 100%; max-width: 360px;
+    }
+
     .btn {
-      padding: 16px;
-      border-radius: 20px; 
-      color: #fff !important; 
-      text-decoration: none !important;
-      font-weight: 700; 
-      font-size: 1.2rem; 
-      transition: 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      position: relative;
+      display: flex; align-items: center; gap: 14px;
+      padding: 15px 20px;
+      border-radius: 16px;
+      text-decoration: none;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: #fff;
+      position: relative; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      opacity: 0;
     }
-    .btn svg { width: 28px; height: 28px; fill: #fff; flex-shrink: 0; }
-    .btn:active { transform: scale(0.96); }
+    .btn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background 0.25s ease;
+    }
+    .btn:hover { transform: translateY(-3px) scale(1.01); }
+    .btn:hover::before { background: rgba(255,255,255,0.07); }
+    .btn:active { transform: scale(0.97); }
 
-    .yt { background-color: #ff0000; }
-    .tg { background-color: #0088cc; }
-    .tt { background-color: #010101; border: 1px solid #333; }
-    .ig { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+    .btn svg { width: 22px; height: 22px; fill: #fff; flex-shrink: 0; position: relative; z-index: 1; }
+    .btn-label { position: relative; z-index: 1; }
 
+    .btn:nth-child(1) { animation: fadeUp 0.6s 0.4s ease forwards; }
+    .btn:nth-child(2) { animation: fadeUp 0.6s 0.5s ease forwards; }
+    .btn:nth-child(3) { animation: fadeUp 0.6s 0.6s ease forwards; }
+    .btn:nth-child(4) { animation: fadeUp 0.6s 0.7s ease forwards; }
+
+    .yt  { background: linear-gradient(135deg, #c4000a 0%, #ff2200 100%); box-shadow: 0 8px 30px rgba(255,34,0,0.25); }
+    .tg  { background: linear-gradient(135deg, #006aa8 0%, #29b6f6 100%); box-shadow: 0 8px 30px rgba(41,182,246,0.2); }
+    .tt  { background: linear-gradient(135deg, #111 0%, #2a2a2a 100%); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+    .ig  { background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); box-shadow: 0 8px 30px rgba(253,29,29,0.2); }
+
+    /* ── FOOTER ── */
+    .footer {
+      margin-top: 44px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      opacity: 0; animation: fadeUp 0.6s 0.9s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── THEME TOGGLE ── */
+    .theme-btn {
+      position: fixed; top: 18px; right: 18px; z-index: 200;
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      transition: background 0.2s;
+    }
+    .theme-btn:hover { background: rgba(255,255,255,0.1); }
+
+    /* ── LIGHT THEME ── */
+    body.light {
+      --bg: #f4f4f8;
+      --surface: #fff;
+      --text: #0a0a1a;
+      --muted: rgba(10,10,26,0.45);
+    }
+    body.light .bg-glow span { opacity: 0.08; }
+    body.light .flag-stripe { opacity: 0.9; }
   </style>
 </head>
 <body>
 
-  <canvas id="flagCanvas"></canvas>
-  <div class="overlay"></div>
+  <div class="flag-stripe"></div>
+  <div class="bg-glow">
+    <span></span><span></span><span></span>
+  </div>
 
-  <button class="theme-toggle" id="themeBtn">🌙</button>
+  <button class="theme-btn" id="themeBtn" title="Змінити тему">🌙</button>
 
-  <div class="content">
-    <h1>Parzivalled</h1>
-    
-    <div class="links">
+  <main class="page">
+    <div class="avatar-wrap">
+      <div class="avatar-ring">
+        <div class="avatar-inner">🎮</div>
+      </div>
+    </div>
+
+    <h1 class="name"><span>Parzivalled</span></h1>
+    <p class="bio">контент · ігри · думки</p>
+
+    <nav class="links">
       <a href="https://www.youtube.com/@ostocer" target="_blank" rel="noopener noreferrer" class="btn yt">
         <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-        YouTube
+        <span class="btn-label">YouTube</span>
       </a>
 
       <a href="https://t.me/berlogarozdumiv" target="_blank" rel="noopener noreferrer" class="btn tg">
-        <svg viewBox="0 0 24 24"><path d="M11.944 0C5.346 0 0 5.346 0 11.944c0 6.598 5.346 11.944 11.944 11.944 6.598 0 11.944-5.346 11.944-11.944C23.888 5.346 18.542 0 11.944 0zm5.204 8.113l-1.744 8.225c-.131.583-.478.725-.967.449l-2.656-1.959-1.281 1.233c-.142.142-.261.261-.534.261l.191-2.703 4.921-4.444c.214-.191-.047-.297-.332-.108L8.63 12.3l-2.623-.82c-.571-.178-.582-.571.118-.847l10.244-3.948c.475-.178.891.107.779.728z"/></svg>
-        Telegram
+        <svg viewBox="0 0 24 24"><path d="M11.944 0C5.346 0 0 5.346 0 11.944c0 6.598 5.346 11.944 11.944 11.944 6.598 0 11.944-5.346 11.944-11.944C23.888 5.346 18.542 0 11.944 0zm5.204 8.113-1.744 8.225c-.131.583-.478.725-.967.449l-2.656-1.959-1.281 1.233c-.142.142-.261.261-.534.261l.191-2.703 4.921-4.444c.214-.191-.047-.297-.332-.108L8.63 12.3l-2.623-.82c-.571-.178-.582-.571.118-.847l10.244-3.948c.475-.178.891.107.779.728z"/></svg>
+        <span class="btn-label">Telegram</span>
       </a>
 
       <a href="https://www.tiktok.com/@hapix167" target="_blank" rel="noopener noreferrer" class="btn tt">
-        <svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.06-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.58-1.01V15a6.5 6.5 0 0 1-12.5 2.5 6.5 6.5 0 0 1 10.5-5.5v-8.13c-.03-2.65-.01-5.3-.02-7.95v-.92z"/></svg>
-        TikTok
+        <svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.74a4.85 4.85 0 0 1-1.01-.05z"/></svg>
+        <span class="btn-label">TikTok</span>
       </a>
 
       <a href="https://www.instagram.com/n1k1tos.as/" target="_blank" rel="noopener noreferrer" class="btn ig">
         <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.17.054 1.805.249 2.227.412.56.216.96.474 1.38.894.42.42.678.82.894 1.38.163.422.358 1.057.412 2.227.059 1.266.071 1.646.071 4.85s-.012 3.584-.07 4.85c-.054 1.17-.249 1.805-.412 2.227-.216.56-.474.96-.894 1.38-.42.42-.82.678-1.38.894-.422.163-1.057.358-2.227.412-1.266.059-1.646.071-4.85.071s-3.584-.012-4.85-.07c-1.17-.054-1.805-.249-2.227-.412-.56-.216-.96-.474-1.38-.894-.42-.42-.678-.82-.894-1.38-.163-.422-.358-1.057-.412-2.227-.059-1.266-.071-1.646-.071-4.85s.012-3.584.07-4.85c.054-1.17.249-1.805.412-2.227.216-.56.474-.96.894-1.38.42-.42.82-.678 1.38-.894.422-.163 1.057-.358 2.227-.412 1.266-.059 1.646-.071 4.85-.071zM12 0C8.741 0 8.333.014 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.741 0 12s.014 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126s1.334 1.078 2.126 1.384c.766.296 1.636.499 2.913.558C8.333 23.986 8.741 24 12 24s3.667-.014 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384s1.078-1.334 1.384-2.126c.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.014-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126s-1.334-1.078-2.126-1.384c-.765-.296-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
-        Instagram
+        <span class="btn-label">Instagram</span>
       </a>
-    </div>
-  </div>
+    </nav>
+
+    <p class="footer">© 2025 Parzivalled</p>
+  </main>
 
   <script>
-    // Тема
-    const themeBtn = document.getElementById('themeBtn');
-    themeBtn.addEventListener('click', () => {
-      const doc = document.documentElement;
-      if (doc.getAttribute('data-theme') === 'dark') {
-        doc.setAttribute('data-theme', 'light');
-        themeBtn.textContent = '☀️';
-      } else {
-        doc.setAttribute('data-theme', 'dark');
-        themeBtn.textContent = '🌙';
-      }
+    const btn = document.getElementById('themeBtn');
+    btn.addEventListener('click', () => {
+      document.body.classList.toggle('light');
+      btn.textContent = document.body.classList.contains('light') ? '🌙' : '☀️';
     });
-
-    // Прапор: 0.85
-    const canvas = document.getElementById('flagCanvas');
-    const ctx = canvas.getContext('2d');
-    let time = 0;
-
-    function draw() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      const rows = 12; const cols = 18;
-      const w = canvas.width / cols; const h = canvas.height / rows;
-
-      for(let r = 0; r < rows; r++) {
-        for(let c = 0; c < cols; c++) {
-          const wave = Math.sin(c * 0.4 + time) * 20;
-          ctx.fillStyle = (r < rows/2) ? '#0055ff' : '#ffea00'; 
-          ctx.globalAlpha = 0.85; 
-          ctx.fillRect(c * w, r * h + wave, w + 1, h + 1);
-        }
-      }
-      time += 0.04;
-      requestAnimationFrame(draw);
-    }
-    draw();
   </script>
 </body>
 </html>
-
-
-
 
 
         
