@@ -65,16 +65,22 @@
     }
 
     /* ── BACKGROUND IMAGE ── */
-    .bg-image {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background:
-        linear-gradient(rgba(5,5,15,0.35), rgba(5,5,15,0.7)),
-        url("bg.jpg") center top / cover no-repeat;
+    :root { --ov1: rgba(5,5,15,0.3); --ov2: rgba(5,5,15,0.65); }
+    html.light { --ov1: rgba(244,244,248,0.82); --ov2: rgba(244,244,248,0.92); }
+
+    .bg-image { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    /* розмите заповнення на всю ширину */
+    .bg-image::before {
+      content: ''; position: absolute; inset: -60px;
+      background: linear-gradient(var(--ov1), var(--ov2)), url("bg.jpg") center / cover no-repeat;
+      filter: blur(30px);
     }
-    html.light .bg-image {
-      background:
-        linear-gradient(rgba(244,244,248,0.82), rgba(244,244,248,0.92)),
-        url("bg.jpg") center top / cover no-repeat;
+    /* чітка картинка без розтягування */
+    .bg-image::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(var(--ov1), var(--ov2)), url("bg.jpg") center / contain no-repeat;
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent);
+              mask-image: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent);
     }
 
     /* ── GRAIN ── */
