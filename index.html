@@ -68,10 +68,24 @@
     :root { --ov1: rgba(5,5,15,0.3); --ov2: rgba(5,5,15,0.65); }
     html.light { --ov1: rgba(244,244,248,0.82); --ov2: rgba(244,244,248,0.92); }
 
-    .bg-image {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background: linear-gradient(var(--ov1), var(--ov2)), url("bg.jpg") center 20% / cover no-repeat;
+    .bg-image { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .bg-image::before {            /* повільний дрейф картинки */
+      content: ''; position: absolute; inset: -6%;
+      background: url("bg.jpg") center 20% / cover no-repeat;
+      animation: kenburns 45s ease-in-out infinite alternate;
+      will-change: transform;
     }
+    .bg-image::after {             /* затемнення */
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(var(--ov1), var(--ov2));
+    }
+    @keyframes kenburns {
+      from { transform: scale(1)    translate(0, 0); }
+      to   { transform: scale(1.12) translate(-2.5%, 3%); }
+    }
+
+    /* ── PARTICLES ── */
+    #fx { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; }
 
     /* ── GRAIN ── */
     body::before {
@@ -231,12 +245,14 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
       .avatar, .name, .bio, .btn, .footer { opacity: 1 !important; }
+      #fx { display: none; }
     }
   </style>
 </head>
 <body>
 
   <div class="bg-image" aria-hidden="true"></div>
+  <canvas id="fx" aria-hidden="true"></canvas>
   <div class="flag-stripe"></div>
   <div class="bg-glow" aria-hidden="true"><span></span><span></span><span></span></div>
 
@@ -295,6 +311,57 @@
     });
 
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // ── Частинки (іскри, що пливуть угору) ──
+    (function () {
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const c = document.getElementById('fx'), ctx = c.getContext('2d');
+      let w, h, dpr, parts = [];
+      const rnd = (a, b) => a + Math.random() * (b - a);
+
+      function spawn(initial) {
+        return {
+          x: rnd(0, w),
+          y: initial ? rnd(0, h) : h + 10,
+          r: rnd(0.8, 2.6),
+          vy: rnd(0.15, 0.6),
+          vx: rnd(-0.15, 0.15),
+          a: rnd(0.25, 0.8),
+          ph: rnd(0, 6.28),
+          hue: Math.random() < 0.7 ? 345 : 45   // рожевий / золотий
+        };
+      }
+      function resize() {
+        dpr = Math.min(devicePixelRatio || 1, 2);
+        w = innerWidth; h = innerHeight;
+        c.width = w * dpr; c.height = h * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const n = w < 600 ? 28 : 55;
+        parts = Array.from({ length: n }, () => spawn(true));
+      }
+      function tick(t) {
+        ctx.clearRect(0, 0, w, h);
+        const light = document.documentElement.classList.contains('light');
+        for (const p of parts) {
+          p.y -= p.vy;
+          p.x += p.vx + Math.sin(t / 1500 + p.ph) * 0.2;
+          if (p.y < -10) Object.assign(p, spawn(false));
+          const fade = Math.min(1, p.y / (h * 0.25), (h - p.y) / 60 + 0.2);
+          const tw = 0.6 + 0.4 * Math.sin(t / 600 + p.ph);
+          ctx.beginPath();
+          ctx.fillStyle = `hsla(${p.hue}, 100%, ${light ? 45 : 70}%, ${p.a * tw * Math.max(fade, 0) * (light ? 0.5 : 1)})`;
+          ctx.shadowColor = `hsla(${p.hue}, 100%, 60%, 0.9)`;
+          ctx.shadowBlur = 8;
+          ctx.arc(p.x, p.y, p.r, 0, 6.283);
+          ctx.fill();
+        }
+        requestAnimationFrame(tick);
+      }
+      addEventListener('resize', resize);
+      resize();
+      requestAnimationFrame(tick);
+    })();
+
   </script>
 </body>
 </html>
